@@ -1,7 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// CI generates the release key once and keeps it in the Actions cache (never in git),
+// so every new APK installs as an update over the previous one.
+val keyProps = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -28,12 +37,6 @@ android {
         versionName = flutter.versionName
     }
 
-    // CI generates the release key once and keeps it in the Actions cache (never in git),
-    // so every new APK installs as an update over the previous one.
-    val keyProps = java.util.Properties().apply {
-        val f = rootProject.file("key.properties")
-        if (f.exists()) f.inputStream().use { load(it) }
-    }
     signingConfigs {
         if (keyProps.isNotEmpty()) {
             create("release") {
