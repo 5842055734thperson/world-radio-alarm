@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -56,7 +55,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
   // ---- geometry: map units (degrees) <-> viewport child pixels ----
 
-  double get _unit => _viewport.width / WorldMapData.width; // px per degree at scale 1
+  double get _unit => _viewport.width / WorldMapData.width; // px per map unit at scale 1
   Offset get _origin =>
       Offset(0, (_viewport.height - WorldMapData.height * _unit) / 2); // map centered vertically
 
@@ -65,8 +64,8 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
   double get _scale => _tc.value.getMaxScaleOnAxis();
 
-  /// Starting view: Europe / Türkiye / Middle East.
-  Matrix4 _homeMatrix() => _matrixFor(WorldMapData.project(28, 44), 3.2);
+  /// Starting view: Europe, Africa and western Asia — coastlines only.
+  Matrix4 _homeMatrix() => _matrixFor(WorldMapData.project(22, 28), 1.9);
 
   Matrix4 _matrixFor(Offset mapCenter, double scale) {
     final c = _toChild(mapCenter);
@@ -102,8 +101,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       if (d <= hitRadius) near.add((d, st));
     }
     near.sort((a, b) => a.$1.compareTo(b.$1));
-    final (lon, lat) = WorldMapData.unproject(_toMap(childPos));
-    final country = map.countryAt(lon, lat);
+    final country = map.countryAt(_toMap(childPos));
     if (near.isEmpty && country == null) {
       setState(() => _selected = null);
       return;
@@ -256,6 +254,10 @@ class _MapPainter extends CustomPainter {
   final MapCountry? selected;
   final Listenable playing;
 
+  /// Zoom levels where borders start to fade in / are fully shown.
+  static const bordersFrom = 2.6;
+  static const bordersFull = 4.5;
+
   Float32List? _points;
   int _pointsFor = -1;
 
@@ -263,18 +265,31 @@ class _MapPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final s = transform.value.getMaxScaleOnAxis();
 
-    // Outlines: drawn in degree units, line width kept ~1 screen px at any zoom.
+    // Outlines are drawn in map units; line widths stay constant on screen.
     canvas.save();
     canvas.translate(origin.dx, origin.dy);
     canvas.scale(unit);
+    final px = 1.0 / (unit * s); // one screen pixel in map units
     final line = Paint()
       ..style = PaintingStyle.stroke
       ..color = ink
       ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = 1.0 / (unit * s);
-    canvas.drawPath(map.path, line);
+      ..strokeWidth = px;
+    canvas.drawPath(map.frame, line);
+    canvas.drawPath(map.land, line);
+    // Political borders appear only when zooming in.
+    final borderAlpha = ((s - bordersFrom) / (bordersFull - bordersFrom)).clamp(0.0, 1.0);
+    if (borderAlpha > 0) {
+      canvas.drawPath(
+        map.borders,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..color = ink.withValues(alpha: 0.75 * borderAlpha)
+          ..strokeWidth = 0.8 * px,
+      );
+    }
     if (selected != null) {
-      canvas.drawPath(selected!.path, line..strokeWidth = 3.0 / (unit * s));
+      canvas.drawPath(selected!.path, line..strokeWidth = 2.5 * px);
     }
     canvas.restore();
 
@@ -291,15 +306,14 @@ class _MapPainter extends CustomPainter {
       _points = pts;
       _pointsFor = list.length;
     }
-    final dot = math.min(6.0, 2.5 + s * 0.35) / s;
-    canvas.drawRawPoints(
-      ui.PointMode.points,
-      _points!,
-      Paint()
-        ..color = ink
-        ..strokeWidth = dot
-        ..strokeCap = StrokeCap.butt,
-    );
+    // 3 px squares on the world view, growing to 5 px when zoomed in.
+    final half = math.min(5.0, 2.6 + s * 0.3) / s / 2;
+    final pts = _points!;
+    final dots = Path();
+    for (var i = 0; i < pts.length; i += 2) {
+      dots.addRect(Rect.fromLTRB(pts[i] - half, pts[i + 1] - half, pts[i] + half, pts[i + 1] + half));
+    }
+    canvas.drawPath(dots, Paint()..color = ink);
 
     // Current station: hollow square with a gap around it.
     final cur = player.station;
