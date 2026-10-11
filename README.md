@@ -35,8 +35,8 @@ Theme follows the system or can be forced light/dark (the ◐ button).
   (auto / light / dark) and the timeshift buffer length.
 - **Timeshift (rewind live radio)**: the live MP3/AAC stream is recorded into a rolling
   15- or 30-minute in-memory buffer (setting in Library; off is possible). Pause really
-  pauses, the player shows how far behind live you are, and you can drag the rewind bar,
-  jump ±30 s or snap back to LIVE. Song titles (ICY metadata) follow the rewound
+  pauses, the player shows how far behind live you are, and you drag the rewind bar to
+  move through the buffer (the right end is live). Song titles (ICY metadata) follow the rewound
   position. HLS/Ogg streams and servers that can't be recorded fall back to normal live
   playback.
 - **Sleep timer** (15–120 min, fades out).
