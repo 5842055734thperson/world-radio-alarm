@@ -48,7 +48,7 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
     if (!mounted) return;
     final next = alarm.nextTrigger();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(upper(next == null ? 'Alarm kaydedildi' : 'Alarm ${untilText(next)} çalacak')),
+      content: Text(upper(next == null ? 'Alarm saved' : 'Alarm rings ${untilText(next)}')),
     ));
     Navigator.pop(context);
   }
@@ -63,7 +63,7 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
     await alarms.test(_build());
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('ALARM 5 SANİYE İÇİNDE ÇALACAK. EKRANI KİLİTLEYEBİLİRSİN.'),
+      content: Text('ALARM RINGS IN 5 SECONDS. YOU CAN LOCK THE SCREEN.'),
     ));
   }
 
@@ -93,10 +93,10 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
     final preview = _build().nextTrigger();
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.alarm == null ? 'YENİ ALARM' : 'ALARMI DÜZENLE'),
+        title: Text(widget.alarm == null ? 'NEW ALARM' : 'EDIT ALARM'),
         actions: [
           if (widget.alarm != null)
-            IconButton(icon: const Icon(Icons.delete_outline), tooltip: 'Sil', onPressed: _delete),
+            IconButton(icon: const Icon(Icons.delete_outline), tooltip: 'Delete', onPressed: _delete),
         ],
       ),
       body: ListView(
@@ -111,11 +111,11 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
             ),
           ),
           Text(
-            upper(preview == null ? 'Saate dokunarak değiştir' : '${untilText(preview)} çalacak'),
+            upper(preview == null ? 'Tap the time to change it' : 'Rings ${untilText(preview)}'),
             textAlign: TextAlign.center,
             style: mono(context, size: 12, color: scheme.onSurfaceVariant),
           ),
-          const SectionLabel('Tekrar'),
+          const SectionLabel('Repeat'),
           Row(
             children: [
               for (var d = 1; d <= 7; d++) ...[
@@ -134,11 +134,11 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
           const SizedBox(height: 6),
           Text(
             upper(_days.isEmpty
-                ? 'Gün seçilmezse bir kez çalar'
+                ? 'No days selected: rings once'
                 : RadioAlarm(id: 0, hour: 0, minute: 0, days: _days.toList()).daysText),
             style: mono(context, size: 11, color: scheme.onSurfaceVariant),
           ),
-          const SectionLabel('Radyo'),
+          const SectionLabel('Radio'),
           BrutBox(
             onTap: _pickStation,
             padding: const EdgeInsets.all(10),
@@ -148,7 +148,7 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    upper(_station?.name ?? 'Radyo seç (yoksa alarm sesi)'),
+                    upper(_station?.name ?? 'Choose a station (or alarm tone)'),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -159,8 +159,8 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            upper('İnternet yoksa veya radyo açılmazsa telefonun alarm sesi çalar. '
-                'Ses 30 saniyede yavaşça yükselir.'),
+            upper('Without internet, or if the stream fails, the phone alarm tone plays. '
+                'Volume fades in over 30 seconds.'),
             style: mono(context, size: 11, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 28),
@@ -168,13 +168,13 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
             inverted: true,
             onTap: _save,
             padding: const EdgeInsets.symmetric(vertical: 18),
-            child: const Text('KAYDET', style: TextStyle(fontSize: 16)),
+            child: const Text('SAVE', style: TextStyle(fontSize: 16)),
           ),
           const SizedBox(height: 10),
           BrutBox(
             onTap: _test,
             padding: const EdgeInsets.symmetric(vertical: 18),
-            child: const Text('5 SANİYE SONRA DENE'),
+            child: const Text('TEST IN 5 SECONDS'),
           ),
         ],
       ),
@@ -201,7 +201,7 @@ class _StationPickerPageState extends State<_StationPickerPage> {
     ];
     void pick(Station s) => Navigator.pop(context, s);
     return Scaffold(
-      appBar: AppBar(title: const Text('ALARM RADYOSU')),
+      appBar: AppBar(title: const Text('ALARM STATION')),
       body: Column(
         children: [
           Padding(
@@ -212,7 +212,7 @@ class _StationPickerPageState extends State<_StationPickerPage> {
                   child: BrutBox(
                     inverted: !_searchAll,
                     onTap: () => setState(() => _searchAll = false),
-                    child: const Text('KİTAPLIK'),
+                    child: const Text('LIBRARY'),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -220,7 +220,7 @@ class _StationPickerPageState extends State<_StationPickerPage> {
                   child: BrutBox(
                     inverted: _searchAll,
                     onTap: () => setState(() => _searchAll = true),
-                    child: const Text('TÜM İSTASYONLAR'),
+                    child: const Text('ALL STATIONS'),
                   ),
                 ),
               ],
@@ -230,7 +230,7 @@ class _StationPickerPageState extends State<_StationPickerPage> {
             child: _searchAll
                 ? StationSearch(onSelect: pick)
                 : mine.isEmpty
-                    ? Center(child: Text('KİTAPLIK BOŞ', style: mono(context)))
+                    ? Center(child: Text('LIBRARY IS EMPTY', style: mono(context)))
                     : ListView(children: [for (final s in mine) StationTile(s, onTap: () => pick(s))]),
           ),
         ],

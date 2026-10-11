@@ -9,7 +9,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.worldradio.world_radio.playback',
-    androidNotificationChannelName: 'Radyo çalma',
+    androidNotificationChannelName: 'Radio playback',
     androidNotificationOngoing: true,
   );
   await initAppState();
@@ -24,7 +24,7 @@ class WorldRadioApp extends StatelessWidget {
     return ListenableBuilder(
       listenable: settings,
       builder: (context, _) => MaterialApp(
-        title: 'Dünya Radyo',
+        title: 'World Radio',
         debugShowCheckedModeBanner: false,
         theme: brutalTheme(Brightness.light),
         darkTheme: brutalTheme(Brightness.dark),

@@ -43,7 +43,7 @@ class RadioPlayer extends ChangeNotifier {
       notifyListeners();
     });
     _player.playbackEventStream.listen((_) {}, onError: (Object e, _) {
-      error = 'Bu istasyon şu an çalınamıyor.';
+      error = 'This station cannot be played right now.';
       notifyListeners();
     });
   }
@@ -67,7 +67,7 @@ class RadioPlayer extends ChangeNotifier {
       ));
       unawaited(_player.play());
     } catch (e) {
-      error = 'Bu istasyon şu an çalınamıyor.';
+      error = 'This station cannot be played right now.';
       notifyListeners();
     }
   }

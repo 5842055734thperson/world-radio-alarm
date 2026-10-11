@@ -18,6 +18,10 @@ class Similar {
     'various', 'webradio', 'web radio', 'stereo', 'hd', 'public radio', 'community radio',
   };
 
+  /// Up to four descriptive tags for display.
+  static List<String> displayTags(Station s) =>
+      s.tagSet.difference(_generic).take(4).toList();
+
   /// The most telling tag, used to query candidates.
   static String mainTag(Station s) {
     for (final t in s.tags.toLowerCase().split(',').map((e) => e.trim())) {

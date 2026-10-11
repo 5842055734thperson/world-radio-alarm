@@ -7,7 +7,7 @@ import '../widgets/station_widgets.dart';
 import 'alarms_page.dart';
 import 'discover_page.dart';
 import 'favorites_page.dart';
-import 'graph_page.dart';
+import 'feed_page.dart';
 import 'map_page.dart';
 import 'player_page.dart';
 
@@ -20,10 +20,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const _tabs = [
-    (Icons.public, 'HARİTA'),
-    (Icons.hub_outlined, 'AĞ'),
-    (Icons.search, 'ARA'),
-    (Icons.favorite_border, 'KİTAPLIK'),
+    (Icons.public, 'MAP'),
+    (Icons.style_outlined, 'DISCOVER'),
+    (Icons.search, 'SEARCH'),
+    (Icons.favorite_border, 'LIBRARY'),
     (Icons.alarm, 'ALARM'),
   ];
 
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         bottom: false,
         child: IndexedStack(
           index: _tab,
-          children: const [MapPage(), GraphPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
+          children: const [MapPage(), FeedPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
         ),
       ),
       bottomNavigationBar: Column(
@@ -124,7 +124,7 @@ class MiniPlayer extends StatelessWidget {
         if (s == null) return const SizedBox.shrink();
         final scheme = Theme.of(context).colorScheme;
         final status = player.error ??
-            (player.loading ? 'BAĞLANIYOR…' : player.nowPlaying ?? (player.playing ? 'CANLI' : 'DURDU'));
+            (player.loading ? 'CONNECTING…' : player.nowPlaying ?? (player.playing ? 'LIVE' : 'STOPPED'));
         return Material(
           color: scheme.surface,
           child: InkWell(
@@ -170,7 +170,7 @@ class MiniPlayer extends StatelessWidget {
                       : BrutIconButton(
                           player.playing ? Icons.stop : Icons.play_arrow,
                           inverted: true,
-                          tooltip: player.playing ? 'Durdur' : 'Çal',
+                          tooltip: player.playing ? 'Stop' : 'Play',
                           onTap: player.toggle,
                         ),
                 ],

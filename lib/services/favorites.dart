@@ -43,9 +43,9 @@ class Favorites extends ChangeNotifier {
     _write('recent', _recent);
   }
 
-  /// '' means "whole world". Defaults to Türkiye on first start.
+  /// '' means "whole world". Defaults to Turkey on first start.
   String get countryCode => _prefs.getString('country') ?? 'TR';
-  String get countryName => _prefs.getString('countryName') ?? 'Türkiye';
+  String get countryName => _prefs.getString('countryName') ?? 'Turkey';
 
   void setCountry(String code, String name) {
     _prefs.setString('country', code);

@@ -48,9 +48,9 @@ class PlayerPage extends StatelessWidget {
                     Row(
                       children: [
                         BrutIconButton(Icons.keyboard_arrow_down,
-                            size: 40, tooltip: 'Kapat', onTap: () => Navigator.pop(context)),
+                            size: 40, tooltip: 'Close', onTap: () => Navigator.pop(context)),
                         const Spacer(),
-                        Text(player.playing ? '● CANLI' : '○ DURDU',
+                        Text(player.playing ? '● LIVE' : '○ STOPPED',
                             style: mono(context, size: 12, weight: FontWeight.w700, spacing: 2)),
                       ],
                     ),
@@ -72,7 +72,7 @@ class PlayerPage extends StatelessWidget {
                     if (player.error != null)
                       Text(upper(player.error!), style: mono(context, size: 12, color: scheme.error))
                     else if (player.nowPlaying != null)
-                      Text('ŞİMDİ: ${upper(player.nowPlaying!)}',
+                      Text('NOW: ${upper(player.nowPlaying!)}',
                           maxLines: 2, overflow: TextOverflow.ellipsis, style: mono(context, size: 13)),
                     const Spacer(),
                     Row(
@@ -80,7 +80,7 @@ class PlayerPage extends StatelessWidget {
                         BrutIconButton(
                           fav ? Icons.favorite : Icons.favorite_border,
                           size: 56,
-                          tooltip: fav ? 'Kitaplıktan çıkar' : 'Kitaplığa ekle',
+                          tooltip: fav ? 'Remove from library' : 'Add to library',
                           onTap: () => favorites.toggle(s),
                         ),
                         const SizedBox(width: 12),
@@ -100,7 +100,7 @@ class PlayerPage extends StatelessWidget {
                                     children: [
                                       Icon(player.playing ? Icons.stop : Icons.play_arrow, size: 32),
                                       const SizedBox(width: 8),
-                                      Text(player.playing ? 'DURDUR' : 'ÇAL', style: const TextStyle(fontSize: 18)),
+                                      Text(player.playing ? 'STOP' : 'PLAY', style: const TextStyle(fontSize: 18)),
                                     ],
                                   ),
                           ),
@@ -121,14 +121,14 @@ class PlayerPage extends StatelessWidget {
                         children: [
                           Icon(Icons.hub_outlined, size: 20),
                           SizedBox(width: 8),
-                          Text('BENZERLERİNİ AĞDA KEŞFET →'),
+                          Text('DISCOVER SIMILAR STATIONS →'),
                         ],
                       ),
                     ),
                     if (sleepAt != null) ...[
                       const SizedBox(height: 10),
                       Text(
-                        'UYKU ZAMANLAYICISI · ${sleepAt.difference(DateTime.now()).inMinutes + 1} DK',
+                        'SLEEP TIMER · ${sleepAt.difference(DateTime.now()).inMinutes + 1} MIN',
                         style: mono(context, size: 12, weight: FontWeight.w700),
                       ),
                     ],
@@ -151,11 +151,11 @@ class _SleepButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
-      tooltip: 'Uyku zamanlayıcısı',
+      tooltip: 'Sleep timer',
       onSelected: (m) => player.setSleepTimer(m == 0 ? null : m),
       itemBuilder: (_) => [
-        if (sleepAt != null) const PopupMenuItem(value: 0, child: Text('KAPAT')),
-        for (final m in PlayerPage._sleepOptions) PopupMenuItem(value: m, child: Text('$m DK SONRA')),
+        if (sleepAt != null) const PopupMenuItem(value: 0, child: Text('OFF')),
+        for (final m in PlayerPage._sleepOptions) PopupMenuItem(value: m, child: Text('IN $m MIN')),
       ],
       child: BrutBox(
         width: 56,

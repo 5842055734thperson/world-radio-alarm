@@ -38,12 +38,12 @@ class AlarmsPage extends StatelessWidget {
           children: [
             PageTitle(
               'Alarm',
-              trailing: BrutIconButton(Icons.add, inverted: true, tooltip: 'Alarm ekle', onTap: () => _edit(context, null)),
+              trailing: BrutIconButton(Icons.add, inverted: true, tooltip: 'Add alarm', onTap: () => _edit(context, null)),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Text(
-                upper(next == null ? 'Kurulu alarm yok' : 'Sıradaki: ${untilText(next)}'),
+                upper(next == null ? 'No alarms set' : 'Next: ${untilText(next)}'),
                 style: mono(context, size: 12, spacing: 1),
               ),
             ),
@@ -55,7 +55,7 @@ class AlarmsPage extends StatelessWidget {
                 child: BrutBox(
                   onTap: () => _edit(context, null),
                   padding: const EdgeInsets.symmetric(vertical: 28),
-                  child: const Text('+ RADYOLU ALARM KUR'),
+                  child: const Text('+ SET A RADIO ALARM'),
                 ),
               ),
           ],
@@ -93,7 +93,7 @@ class _AlarmRow extends StatelessWidget {
                       style: TextStyle(fontFamily: kMono, fontSize: 52, fontWeight: FontWeight.w700, height: 1, color: color)),
                   const SizedBox(height: 6),
                   Text(
-                    upper('${alarm.daysText} · ${alarm.station?.name ?? 'Alarm sesi'}'),
+                    upper('${alarm.daysText} · ${alarm.station?.name ?? 'Alarm tone'}'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: mono(context, size: 11, color: color),
@@ -133,13 +133,13 @@ class _SetupCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('! ALARMLARIN ÇALMASI İÇİN'),
-            if (!alarms.notificationsAllowed) item('Bildirim izni kapalı', 'İzin ver', alarms.requestNotifications),
-            if (!alarms.canScheduleExact) item('Tam zamanlı alarm izni kapalı', 'Aç', alarms.openExactAlarmSettings),
+            const Text('! TO MAKE SURE ALARMS RING'),
+            if (!alarms.notificationsAllowed) item('Notifications are off', 'Allow', alarms.requestNotifications),
+            if (!alarms.canScheduleExact) item('Exact alarms are off', 'Turn on', alarms.openExactAlarmSettings),
             if (!alarms.canFullScreen)
-              item('Kilit ekranı alarm izni kapalı', 'Aç', alarms.openFullScreenSettings),
+              item('Lock-screen alarm is off', 'Turn on', alarms.openFullScreenSettings),
             if (!alarms.ignoringBattery)
-              item('Pil tasarrufu alarmı geciktirebilir', 'Muaf tut', alarms.requestIgnoreBattery),
+              item('Battery saver may delay alarms', 'Exempt', alarms.requestIgnoreBattery),
           ],
         ),
       ),

@@ -21,12 +21,12 @@ final Similar similar = Similar(api);
 /// Selected bottom tab (lets other screens jump to a tab).
 final ValueNotifier<int> homeTab = ValueNotifier(0);
 
-/// Root of the discovery tree on the "Ağ" tab.
-final ValueNotifier<Station?> graphSeed = ValueNotifier(null);
+/// Starting station of the Discover feed.
+final ValueNotifier<Station?> discoverSeed = ValueNotifier(null);
 
-/// Opens the discovery tree starting from [s].
+/// Opens the Discover feed starting from [s].
 void exploreFrom(Station s) {
-  graphSeed.value = s;
+  discoverSeed.value = s;
   homeTab.value = 1;
 }
 

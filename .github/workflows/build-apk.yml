@@ -55,26 +55,26 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --build-number=${{ github.run_number }} --build-name=1.0.${{ github.run_number }}
 
-      - run: cp build/app/outputs/flutter-apk/app-release.apk DunyaRadyo.apk
+      - run: cp build/app/outputs/flutter-apk/app-release.apk WorldRadio.apk
 
       # Smaller APK for 64-bit ARM phones (nearly all current phones). Same version
       # code and key as the universal APK, so either one updates the other.
       - name: Build arm64 APK
         run: |
           flutter build apk --release --target-platform android-arm64 --build-number=${{ github.run_number }} --build-name=1.0.${{ github.run_number }}
-          cp build/app/outputs/flutter-apk/app-release.apk DunyaRadyo-arm64.apk
+          cp build/app/outputs/flutter-apk/app-release.apk WorldRadio-arm64.apk
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: radio-v1.0.${{ github.run_number }}
-          name: Dünya Radyo 1.0.${{ github.run_number }}
+          name: World Radio 1.0.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
           make_latest: true
           files: |
-            DunyaRadyo.apk
-            DunyaRadyo-arm64.apk
+            WorldRadio.apk
+            WorldRadio-arm64.apk
           body: |
             Android radio app with world stations and a radio alarm clock.
-            Download **DunyaRadyo-arm64.apk** (smaller, for most phones) or the universal
-            **DunyaRadyo.apk** on your phone and open it to install.
+            Download **WorldRadio-arm64.apk** (smaller, for most phones) or the universal
+            **WorldRadio.apk** on your phone and open it to install.

@@ -71,7 +71,7 @@ class AlarmActivity : Activity() {
             typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
             letterSpacing = 0.1f
             gravity = Gravity.CENTER
-            text = AlarmService.stationName.ifBlank { "Alarm" }.uppercase(Locale.forLanguageTag("tr"))
+            text = AlarmService.stationName.ifBlank { "Alarm" }.uppercase(Locale.ROOT)
             setPadding(0, (8 * dp).toInt(), 0, (56 * dp).toInt())
         }
         // Brutalist square buttons: filled white, or black with a white 2dp border.
@@ -97,8 +97,8 @@ class AlarmActivity : Activity() {
         }
         root.addView(clock)
         root.addView(station)
-        root.addView(button("Ertele · ${AlarmScheduler.SNOOZE_MINUTES} dk", false, AlarmService.ACTION_SNOOZE))
-        root.addView(button("Kapat", true, AlarmService.ACTION_STOP))
+        root.addView(button("Snooze · ${AlarmScheduler.SNOOZE_MINUTES} min", false, AlarmService.ACTION_SNOOZE))
+        root.addView(button("Stop", true, AlarmService.ACTION_STOP))
         setContentView(root)
 
         ContextCompat.registerReceiver(

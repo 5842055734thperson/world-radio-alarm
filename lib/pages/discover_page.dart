@@ -16,7 +16,7 @@ class DiscoverPage extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PageTitle('Ara'),
+        PageTitle('Search'),
         Expanded(child: StationSearch()),
       ],
     );
@@ -55,26 +55,26 @@ class StationSearch extends StatefulWidget {
 
 class _StationSearchState extends State<StationSearch> {
   static const _genres = [
-    ('', 'Tümü'),
+    ('', 'All'),
     ('pop', 'Pop'),
     ('rock', 'Rock'),
-    ('news', 'Haber'),
-    ('talk', 'Sohbet'),
-    ('jazz', 'Caz'),
-    ('classical', 'Klasik'),
-    ('turkish folk', 'Türk halk'),
+    ('news', 'News'),
+    ('talk', 'Talk'),
+    ('jazz', 'Jazz'),
+    ('classical', 'Classical'),
+    ('folk', 'Folk'),
     ('arabesk', 'Arabesk'),
-    ('dance', 'Dans'),
-    ('electronic', 'Elektronik'),
+    ('dance', 'Dance'),
+    ('electronic', 'Electronic'),
     ('hip-hop', 'Hip-hop'),
     ('chillout', 'Chillout'),
-    ('sports', 'Spor'),
-    ('religious', 'Dini'),
-    ('80s', '80\'ler'),
-    ('90s', '90\'lar'),
-    ('oldies', 'Nostalji'),
+    ('sports', 'Sports'),
+    ('ambient', 'Ambient'),
+    ('80s', '80s'),
+    ('90s', '90s'),
+    ('oldies', 'Oldies'),
     ('lounge', 'Lounge'),
-    ('kids', 'Çocuk'),
+    ('kids', 'Kids'),
   ];
 
   final _controller = TextEditingController();
@@ -139,7 +139,7 @@ class _StationSearchState extends State<StationSearch> {
       });
     } catch (e) {
       if (id != _requestId || !mounted) return;
-      setState(() => _error = 'İnternet bağlantısını kontrol edin.');
+      setState(() => _error = 'Check your internet connection.');
     } finally {
       if (id == _requestId && mounted) setState(() => _loading = false);
     }
@@ -179,7 +179,7 @@ class _StationSearchState extends State<StationSearch> {
                   controller: _controller,
                   style: mono(context, size: 15),
                   decoration: InputDecoration(
-                    hintText: 'İSTASYON ADI',
+                    hintText: 'STATION NAME',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _controller.text.isEmpty
                         ? null
@@ -203,8 +203,8 @@ class _StationSearchState extends State<StationSearch> {
                 BrutBox(
                   height: 52,
                   onTap: _pickCountry,
-                  tooltip: 'Ülke seç',
-                  child: Text(code.isEmpty ? '🌍 TÜMÜ' : '${flagEmoji(code)} $code'),
+                  tooltip: 'Choose country',
+                  child: Text(code.isEmpty ? '🌍 ALL' : '${flagEmoji(code)} $code'),
                 ),
               ],
             ],
@@ -242,10 +242,10 @@ class _StationSearchState extends State<StationSearch> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(upper(_error ?? 'İstasyon bulunamadı.'),
+              Text(upper(_error ?? 'No stations found.'),
                   textAlign: TextAlign.center, style: mono(context, size: 13)),
               const SizedBox(height: 16),
-              if (_error != null) BrutBox(onTap: _reload, inverted: true, child: const Text('TEKRAR DENE')),
+              if (_error != null) BrutBox(onTap: _reload, inverted: true, child: const Text('RETRY')),
             ],
           ),
         ),
@@ -334,7 +334,7 @@ class _CountryPickerState extends State<_CountryPicker> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  Expanded(child: Text('ÜLKE', style: display(context, size: 28))),
+                  Expanded(child: Text('COUNTRY', style: display(context, size: 28))),
                   BrutIconButton(Icons.close, size: 40, onTap: () => Navigator.pop(context)),
                 ],
               ),
@@ -343,16 +343,16 @@ class _CountryPickerState extends State<_CountryPicker> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: TextField(
                 style: mono(context, size: 15),
-                decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'ÜLKE ARA (TURKEY, GERMANY…)'),
+                decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'SEARCH (TURKEY, GERMANY…)'),
                 onChanged: (v) => setState(() => _filter = v),
               ),
             ),
-            row('🌍', 'Tüm dünya', '', () => Navigator.pop(context, const Country('', 'Tüm dünya', 0))),
+            row('🌍', 'Whole world', '', () => Navigator.pop(context, const Country('', 'Whole world', 0))),
             Expanded(
               child: list == null
                   ? Center(
                       child: _failed
-                          ? Text('ÜLKE LİSTESİ YÜKLENEMEDİ', style: mono(context))
+                          ? Text('COULD NOT LOAD COUNTRIES', style: mono(context))
                           : const CircularProgressIndicator(strokeWidth: 2),
                     )
                   : ListView.builder(

@@ -49,16 +49,16 @@ class RadioAlarm {
   String get timeText =>
       '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
-  static const dayShort = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+  static const dayShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   String get daysText {
-    if (days.isEmpty) return 'Bir kez';
+    if (days.isEmpty) return 'Once';
     final s = days.toSet();
-    if (s.length == 7) return 'Her gün';
+    if (s.length == 7) return 'Every day';
     if (s.length == 5 && s.containsAll([1, 2, 3, 4, 5]) && !s.contains(6)) {
-      return 'Hafta içi';
+      return 'Weekdays';
     }
-    if (s.length == 2 && s.containsAll([6, 7])) return 'Hafta sonu';
+    if (s.length == 2 && s.containsAll([6, 7])) return 'Weekends';
     final sorted = s.toList()..sort();
     return sorted.map((d) => dayShort[d - 1]).join(' ');
   }
@@ -77,12 +77,12 @@ class RadioAlarm {
   }
 }
 
-/// "7 saat 20 dakika sonra" style text.
+/// "in 7 h 20 min" style text.
 String untilText(DateTime target) {
   final d = target.difference(DateTime.now());
   final h = d.inHours;
   final m = d.inMinutes.remainder(60) + (d.inSeconds.remainder(60) > 0 ? 1 : 0);
-  if (h >= 24) return '${d.inDays} gün ${h - d.inDays * 24} saat sonra';
-  if (h == 0) return '$m dakika sonra';
-  return '$h saat $m dakika sonra';
+  if (h >= 24) return 'in ${d.inDays} d ${h - d.inDays * 24} h';
+  if (h == 0) return 'in $m min';
+  return 'in $h h $m min';
 }

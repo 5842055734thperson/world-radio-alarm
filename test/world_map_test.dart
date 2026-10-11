@@ -25,7 +25,7 @@ void main() {
     expect(WorldMapData.project(0, 90).dy, closeTo(0, 1e-9));
   });
 
-  test('Turkish upper case', () {
-    expect(upper('istanbul ışık'), 'İSTANBUL IŞIK');
+  test('label upper case', () {
+    expect(upper('world radio'), 'WORLD RADIO');
   });
 }

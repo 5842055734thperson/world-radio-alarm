@@ -1,7 +1,7 @@
-# Dünya Radyo — World Radio Alarm
+# World Radio — radio alarm clock
 
 Android app (Flutter) to listen to radio stations from all over the world and
-wake up to a station of your choice. The UI is in Turkish.
+wake up to a station of your choice. The UI is in English.
 
 ## Design
 
@@ -19,12 +19,13 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 - **~50,000 stations** from the free [Radio Browser](https://www.radio-browser.info)
   directory: internet radios and the online streams of terrestrial (FM/AM) stations.
-- **Discovery tree ("Ağ" tab)**, inspired by everynoise.com: start from a station; each tap
-  plays a station and branches out to related ones — three from the same country (solid
-  lines) and three from other countries (dashed lines). Long-press a box to fold its
-  branches. Relatedness is estimated from shared genre tags, language and popularity
-  (Radio Browser has no co-listening data). Long-press any station in a list, or use
-  "Benzerlerini ağda keşfet" in the player, to start a tree from it.
+- **Discover feed**, inspired by everynoise.com: an endless stack of station "catalogue
+  cards" (name, country, language, genre, format). Swipe up for the next one; the new card
+  flips up like a card in an index drawer and starts playing when you stop on it. Each card
+  shows which station it came from (VIA) and what they share (LINK); the path alternates
+  stations from the same country and from abroad. Relatedness is estimated from shared
+  genre tags, language and popularity (Radio Browser has no co-listening data). Long-press
+  any station, or use "Discover similar stations" in the player, to start from it.
 - Search by name, filter by **country** (Türkiye by default, or the whole world) and **genre**.
 - Background playback with notification / lock-screen controls, current song title (ICY metadata).
 - **Favorites** (drag to reorder) and recently played stations.
@@ -45,7 +46,7 @@ phones do not expose an FM tuner to apps.
 Every push to `main` builds a signed APK in GitHub Actions
 (`.github/workflows/build-apk.yml`) and publishes it as a GitHub Release
 (`radio-v1.0.N`). Open the latest release on the phone, download
-`DunyaRadyo-arm64.apk` (or the universal `DunyaRadyo.apk` for older 32-bit phones) and allow "install unknown apps" when Android asks.
+`WorldRadio-arm64.apk` (or the universal `WorldRadio.apk` for older 32-bit phones) and allow "install unknown apps" when Android asks.
 New versions install over the old one and keep favorites and alarms: the release
 signing key is generated on the first CI run and reused from the Actions cache (never committed).
 If the cache is ever evicted, the next APK gets a new key and the old app must be uninstalled first.
@@ -59,7 +60,7 @@ If the cache is ever evicted, the next APK gets a new key and the old app must b
 | `lib/services/alarms.dart` | Method-channel bridge to the native alarm engine |
 | `lib/theme.dart`, `lib/widgets/brut.dart` | Brutalist theme and building blocks |
 | `lib/map/world_map_data.dart`, `lib/pages/map_page.dart` | World map: outlines, projection, station dots, tap handling |
-| `lib/services/similar.dart`, `lib/pages/graph_page.dart` | Related-station scoring and the discovery tree |
+| `lib/services/similar.dart`, `lib/pages/feed_page.dart` | Related-station scoring and the Discover card feed |
 | `lib/services/geo_stations.dart` | Popular stations with coordinates (cached 3 days) |
 | `lib/pages/` | Map, search, library, alarms, alarm editor, full-screen player |
 | `assets/world.json` | Coastlines, borders and country shapes, built by `tool/build_map.py` from Natural Earth 1:50m |

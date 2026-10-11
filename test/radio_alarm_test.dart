@@ -19,7 +19,7 @@ void main() {
   test('weekend alarm skips to Saturday', () {
     final a = RadioAlarm(id: 1, hour: 9, minute: 0, days: [6, 7]);
     expect(a.nextTrigger(mondayMorning), DateTime(2026, 10, 17, 9, 0));
-    expect(a.daysText, 'Hafta sonu');
+    expect(a.daysText, 'Weekends');
   });
 
   test('disabled alarm never rings', () {
@@ -34,7 +34,7 @@ void main() {
     expect(j['streamUrl'], 'http://x/stream');
     final b = RadioAlarm.fromJson(j);
     expect(b.station?.name, 'TRT FM');
-    expect(b.daysText, 'Hafta içi');
+    expect(b.daysText, 'Weekdays');
   });
 
   test('station JSON keeps coordinates', () {

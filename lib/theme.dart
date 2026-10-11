@@ -161,5 +161,5 @@ TextStyle display(BuildContext context, {double size = 32, Color? color}) => Tex
       color: color ?? Theme.of(context).colorScheme.onSurface,
     );
 
-/// Turkish-aware upper case ("istanbul" -> "İSTANBUL").
-String upper(String s) => s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+/// Upper case for labels.
+String upper(String s) => s.toUpperCase();

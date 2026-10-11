@@ -69,7 +69,7 @@ class StationTile extends StatelessWidget {
         final fav = favorites.contains(station);
         return InkWell(
           onTap: onTap ?? () => player.play(station),
-          // Long press: open the discovery tree from this station.
+          // Long press: open the Discover feed from this station.
           onLongPress: () => exploreFrom(station),
           child: Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
@@ -113,7 +113,7 @@ class StationTile extends StatelessWidget {
                 trailing ??
                     IconButton(
                       icon: Icon(fav ? Icons.favorite : Icons.favorite_border, size: 22),
-                      tooltip: fav ? 'Kitaplıktan çıkar' : 'Kitaplığa ekle',
+                      tooltip: fav ? 'Remove from library' : 'Add to library',
                       onPressed: () => favorites.toggle(station),
                     ),
               ],

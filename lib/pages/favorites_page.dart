@@ -20,20 +20,20 @@ class FavoritesPage extends StatelessWidget {
           slivers: [
             SliverToBoxAdapter(
               child: PageTitle(
-                'Kitaplık',
+                'Library',
                 trailing: ListenableBuilder(
                   listenable: settings,
                   builder: (context, _) => ThemeButton(label: settings.themeLabel, onTap: settings.cycleTheme),
                 ),
               ),
             ),
-            SliverToBoxAdapter(child: SectionLabel('Favoriler · ${favs.length}')),
+            SliverToBoxAdapter(child: SectionLabel('Favorites · ${favs.length}')),
             if (favs.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    upper('Henüz favori yok. Bir istasyonun yanındaki ♡ işaretine dokun.'),
+                    upper('No favorites yet. Tap ♡ next to a station.'),
                     style: mono(context, size: 12),
                   ),
                 ),
@@ -49,7 +49,7 @@ class FavoritesPage extends StatelessWidget {
                 ),
               ),
             if (recent.isNotEmpty) ...[
-              const SliverToBoxAdapter(child: SectionLabel('Son dinlenenler')),
+              const SliverToBoxAdapter(child: SectionLabel('Recently played')),
               SliverList.builder(
                 itemCount: recent.length,
                 itemBuilder: (context, i) => StationTile(recent[i]),

@@ -27,8 +27,8 @@ class Settings extends ChangeNotifier {
   }
 
   String get themeLabel => switch (themeMode) {
-        ThemeMode.system => 'OTO',
-        ThemeMode.light => 'AÇIK',
-        ThemeMode.dark => 'KOYU',
+        ThemeMode.system => 'AUTO',
+        ThemeMode.light => 'LIGHT',
+        ThemeMode.dark => 'DARK',
       };
 }

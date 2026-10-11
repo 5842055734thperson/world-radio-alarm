@@ -46,7 +46,7 @@ class RadioBrowser {
         lastError = e;
       }
     }
-    throw Exception('Radyo sunucularına ulaşılamadı ($lastError)');
+    throw Exception('Could not reach the radio directory ($lastError)');
   }
 
   Future<List<Station>> search({

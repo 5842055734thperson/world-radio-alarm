@@ -7,7 +7,7 @@ Usage:
 Output (coordinates are integers: degrees * 100, flattened lon,lat pairs):
   land     coastline rings, drawn at every zoom level
   borders  country border lines, faded in when zooming
-  c        country outlines (ISO code, Turkish name) used only to find the tapped country
+  c        country outlines (ISO code, English name) used only to find the tapped country
 """
 import json, os, sys
 
@@ -81,7 +81,7 @@ for f in load('ne_50m_admin_0_countries'):
         iso = ''
     rings = [flat(r) for r in (rdp(poly[0], 0.08) for poly in polys(f['geometry'])) if len(r) >= 4]
     if rings:
-        countries.append({'i': iso, 'n': p.get('NAME_TR') or p.get('NAME', ''), 'r': rings})
+        countries.append({'i': iso, 'n': p.get('NAME_EN') or p.get('NAME', ''), 'r': rings})
 
 json.dump({'land': land, 'borders': borders, 'c': countries}, open(out, 'w'), separators=(',', ':'))
 print(len(land), 'land rings,', len(borders), 'border lines,', len(countries), 'countries,',

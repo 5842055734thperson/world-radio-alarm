@@ -174,7 +174,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                     Container(
                       color: scheme.surface,
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text('DÜNYA\nRADYO', style: display(context, size: 30)),
+                      child: Text('WORLD\nRADIO', style: display(context, size: 30)),
                     ),
                     const SizedBox(height: 6),
                     ListenableBuilder(
@@ -185,8 +185,8 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                         child: Text(
                           upper(geoStations.error ??
                               (geoStations.stations.isEmpty
-                                  ? 'İstasyonlar yükleniyor…'
-                                  : '${geoStations.stations.length} istasyon · dokun ve dinle')),
+                                  ? 'Loading stations…'
+                                  : '${geoStations.stations.length} stations · tap to listen')),
                           style: mono(context, size: 11, spacing: 1),
                         ),
                       ),
@@ -208,13 +208,13 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
           bottom: 16,
           child: Column(
             children: [
-              BrutIconButton(Icons.add, tooltip: 'Yakınlaştır', onTap: () => _zoomBy(2)),
+              BrutIconButton(Icons.add, tooltip: 'Zoom in', onTap: () => _zoomBy(2)),
               const SizedBox(height: 8),
-              BrutIconButton(Icons.remove, tooltip: 'Uzaklaştır', onTap: () => _zoomBy(0.5)),
+              BrutIconButton(Icons.remove, tooltip: 'Zoom out', onTap: () => _zoomBy(0.5)),
               const SizedBox(height: 8),
-              BrutIconButton(Icons.public, tooltip: 'Tüm dünya', onTap: () => _animateTo(Matrix4.identity())),
+              BrutIconButton(Icons.public, tooltip: 'Whole world', onTap: () => _animateTo(Matrix4.identity())),
               const SizedBox(height: 8),
-              BrutIconButton(Icons.my_location, tooltip: 'Başlangıç', onTap: () => _animateTo(_homeMatrix())),
+              BrutIconButton(Icons.my_location, tooltip: 'Home view', onTap: () => _animateTo(_homeMatrix())),
             ],
           ),
         ),
@@ -225,7 +225,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
             listenable: geoStations,
             builder: (context, _) => geoStations.error == null
                 ? const SizedBox.shrink()
-                : BrutBox(onTap: () => geoStations.load(force: true), child: const Text('TEKRAR DENE')),
+                : BrutBox(onTap: () => geoStations.load(force: true), child: const Text('RETRY')),
           ),
         ),
       ],
@@ -360,10 +360,10 @@ class _NearbySheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(c == null ? 'YAKINDAKİLER' : '${flagEmoji(c.iso)}  ${c.iso}',
+                        Text(c == null ? 'NEARBY' : '${flagEmoji(c.iso)}  ${c.iso}',
                             style: mono(context, size: 12, weight: FontWeight.w700, spacing: 2)),
                         const SizedBox(height: 4),
-                        Text(upper(c?.name ?? 'Bu bölge'), style: display(context, size: 28)),
+                        Text(upper(c?.name ?? 'This area'), style: display(context, size: 28)),
                       ],
                     ),
                   ),
@@ -384,10 +384,10 @@ class _NearbySheet extends StatelessWidget {
                     );
                   },
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Text('${upper(c.name)} — TÜM İSTASYONLAR →'),
+                  child: Text('${upper(c.name)} — ALL STATIONS →'),
                 ),
               ),
-            if (stations.isNotEmpty) const SectionLabel('Dokunduğun yerde'),
+            if (stations.isNotEmpty) const SectionLabel('Where you tapped'),
             Flexible(
               child: ListView(
                 shrinkWrap: true,
@@ -397,8 +397,8 @@ class _NearbySheet extends StatelessWidget {
             if (stations.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text('Bu noktada işaretli istasyon yok. Yakınlaştırıp bir noktaya dokun '
-                    'ya da ülkenin tüm istasyonlarını aç.',
+                child: Text(upper('No mapped stations here. Zoom in and tap a dot, '
+                    'or open all stations of the country.'),
                     style: mono(context, size: 12)),
               ),
           ],

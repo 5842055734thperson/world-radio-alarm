@@ -137,7 +137,7 @@ class AlarmService : Service() {
             fallback = null
         }
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(NOTIF_ID, buildNotification("Radyo açılamadı · yedek alarm sesi"))
+        nm.notify(NOTIF_ID, buildNotification("Stream unavailable · playing alarm tone"))
     }
 
     private fun stopRinging() {
@@ -184,7 +184,7 @@ class AlarmService : Service() {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val ch = NotificationChannel(CHANNEL, "Alarm", NotificationManager.IMPORTANCE_HIGH).apply {
-                description = "Çalan radyo alarmı"
+                description = "Ringing radio alarm"
                 setSound(null, null)
                 setBypassDnd(true)
             }
@@ -204,7 +204,7 @@ class AlarmService : Service() {
         )
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle("Günaydın ⏰")
+            .setContentTitle("Good morning ⏰")
             .setContentText(text)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -212,8 +212,8 @@ class AlarmService : Service() {
             .setOngoing(true)
             .setContentIntent(screen)
             .setFullScreenIntent(screen, true)
-            .addAction(0, "Ertele (${AlarmScheduler.SNOOZE_MINUTES} dk)", snooze)
-            .addAction(0, "Kapat", stop)
+            .addAction(0, "Snooze (${AlarmScheduler.SNOOZE_MINUTES} min)", snooze)
+            .addAction(0, "Stop", stop)
             .build()
     }
 

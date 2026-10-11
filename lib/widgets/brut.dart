@@ -128,7 +128,7 @@ class BrutToggle extends StatelessWidget {
   }
 }
 
-/// Small monospaced section label: "— FAVORİLER".
+/// Small monospaced section label: "— FAVORITES".
 class SectionLabel extends StatelessWidget {
   const SectionLabel(this.text, {super.key, this.trailing});
 
@@ -177,7 +177,7 @@ class ThemeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BrutBox(
         onTap: onTap,
-        tooltip: 'Tema',
+        tooltip: 'Theme',
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
