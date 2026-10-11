@@ -22,14 +22,18 @@ class RadioBrowser {
 
   static const _headers = {'User-Agent': 'WorldRadioAlarm/1.0'};
 
-  Future<dynamic> _get(String path, [Map<String, String>? query]) async {
+  Future<dynamic> _get(
+    String path, [
+    Map<String, String>? query,
+    Duration timeout = const Duration(seconds: 10),
+  ]) async {
     Object? lastError;
     for (final server in List.of(_servers)) {
       try {
         final uri = Uri.parse('$server$path').replace(queryParameters: query);
         final res = await http
             .get(uri, headers: _headers)
-            .timeout(const Duration(seconds: 10));
+            .timeout(timeout);
         if (res.statusCode == 200) {
           // Prefer the server that worked next time.
           _servers
@@ -66,6 +70,21 @@ class RadioBrowser {
     return data
         .map((e) => Station.fromApi((e as Map).cast<String, dynamic>()))
         .where((s) => s.url.isNotEmpty && s.name.isNotEmpty)
+        .toList();
+  }
+
+  /// The most popular stations that have coordinates, for the map.
+  Future<List<Station>> geoStations({int limit = 4000}) async {
+    final data = await _get('/json/stations/search', {
+      'has_geo_info': 'true',
+      'hidebroken': 'true',
+      'order': 'clickcount',
+      'reverse': 'true',
+      'limit': '$limit',
+    }, const Duration(seconds: 40)) as List;
+    return data
+        .map((e) => Station.fromApi((e as Map).cast<String, dynamic>()))
+        .where((s) => s.url.isNotEmpty && s.name.isNotEmpty && s.hasGeo)
         .toList();
   }
 

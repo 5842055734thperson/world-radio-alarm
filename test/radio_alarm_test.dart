@@ -37,6 +37,13 @@ void main() {
     expect(b.daysText, 'Hafta içi');
   });
 
+  test('station JSON keeps coordinates', () {
+    const s = Station(uuid: 'u', name: 'X', url: 'http://x', lat: 41.0, lon: 29.0);
+    final b = Station.fromJson(s.toJson());
+    expect(b.hasGeo, isTrue);
+    expect(b.lat, 41.0);
+  });
+
   test('flag emoji', () {
     expect(flagEmoji('TR'), '🇹🇷');
   });

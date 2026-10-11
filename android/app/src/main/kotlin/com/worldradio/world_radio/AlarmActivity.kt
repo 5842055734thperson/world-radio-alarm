@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -55,27 +56,37 @@ class AlarmActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setBackgroundColor(Color.parseColor("#101418"))
+            setBackgroundColor(Color.BLACK)
             setPadding((32 * dp).toInt(), 0, (32 * dp).toInt(), 0)
         }
         clock = TextView(this).apply {
             setTextColor(Color.WHITE)
-            textSize = 84f
-            typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
+            textSize = 96f
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
             gravity = Gravity.CENTER
         }
         val station = TextView(this).apply {
-            setTextColor(Color.parseColor("#9FD3FF"))
-            textSize = 22f
+            setTextColor(Color.WHITE)
+            textSize = 20f
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            letterSpacing = 0.1f
             gravity = Gravity.CENTER
-            text = "📻 " + AlarmService.stationName.ifBlank { "Alarm" }
+            text = AlarmService.stationName.ifBlank { "Alarm" }.uppercase(Locale.forLanguageTag("tr"))
             setPadding(0, (8 * dp).toInt(), 0, (56 * dp).toInt())
         }
-        fun button(label: String, bg: String, action: String) = Button(this).apply {
+        // Brutalist square buttons: filled white, or black with a white 2dp border.
+        fun button(label: String, filled: Boolean, action: String) = Button(this).apply {
             text = label
-            textSize = 20f
-            setTextColor(Color.WHITE)
-            setBackgroundColor(Color.parseColor(bg))
+            textSize = 18f
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            letterSpacing = 0.1f
+            isAllCaps = true
+            stateListAnimator = null
+            setTextColor(if (filled) Color.BLACK else Color.WHITE)
+            background = GradientDrawable().apply {
+                setColor(if (filled) Color.WHITE else Color.BLACK)
+                setStroke((2 * dp).toInt(), Color.WHITE)
+            }
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, (64 * dp).toInt()
             ).apply { topMargin = (16 * dp).toInt() }
@@ -86,8 +97,8 @@ class AlarmActivity : Activity() {
         }
         root.addView(clock)
         root.addView(station)
-        root.addView(button("Ertele (${AlarmScheduler.SNOOZE_MINUTES} dk)", "#37474F", AlarmService.ACTION_SNOOZE))
-        root.addView(button("Kapat", "#1E88E5", AlarmService.ACTION_STOP))
+        root.addView(button("Ertele · ${AlarmScheduler.SNOOZE_MINUTES} dk", false, AlarmService.ACTION_SNOOZE))
+        root.addView(button("Kapat", true, AlarmService.ACTION_STOP))
         setContentView(root)
 
         ContextCompat.registerReceiver(

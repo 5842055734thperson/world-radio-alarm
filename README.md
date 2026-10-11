@@ -3,7 +3,17 @@
 Android app (Flutter) to listen to radio stations from all over the world and
 wake up to a station of your choice. The UI is in Turkish.
 
+## Design
+
+Minimal, brutalist, monochrome: pure black on white (light) or white on black (dark),
+square corners, 2px borders, Space Grotesk titles and JetBrains Mono data text.
+Theme follows the system or can be forced light/dark (the ◐ button).
+
 ## Features
+
+- **World map home screen**: a line-only world map (Natural Earth country outlines).
+  Pinch / +/- to zoom, drag to pan. Each square dot is a station; tap a dot to see the
+  stations there, or tap a country to open all of its stations.
 
 - **~50,000 stations** from the free [Radio Browser](https://www.radio-browser.info)
   directory: internet radios and the online streams of terrestrial (FM/AM) stations.
@@ -39,7 +49,11 @@ If the cache is ever evicted, the next APK gets a new key and the old app must b
 | `lib/services/radio_browser.dart` | Radio Browser API client with mirror fallback |
 | `lib/services/player.dart` | just_audio playback, sleep timer |
 | `lib/services/alarms.dart` | Method-channel bridge to the native alarm engine |
-| `lib/pages/` | Discover, favorites, alarms, alarm editor, player sheet |
+| `lib/theme.dart`, `lib/widgets/brut.dart` | Brutalist theme and building blocks |
+| `lib/map/world_map_data.dart`, `lib/pages/map_page.dart` | World map: outlines, projection, station dots, tap handling |
+| `lib/services/geo_stations.dart` | Popular stations with coordinates (cached 3 days) |
+| `lib/pages/` | Map, search, library, alarms, alarm editor, full-screen player |
+| `assets/world.json` | Country outlines, built by `tool/build_map.py` from Natural Earth 1:50m |
 | `android/app/src/main/kotlin/.../AlarmScheduler.kt` | Stores alarms, schedules `AlarmManager.setAlarmClock` |
 | `android/app/src/main/kotlin/.../AlarmService.kt` | Foreground service: Media3 stream + fade-in + fallback tone |
 | `android/app/src/main/kotlin/.../AlarmActivity.kt` | Lock-screen wake-up screen |
@@ -53,5 +67,8 @@ flutter pub get
 flutter analyze && flutter test
 flutter build apk --release
 ```
+
+Fonts: Space Grotesk and JetBrains Mono (SIL Open Font License, see `assets/fonts/`).
+Map data: Natural Earth (public domain).
 
 Roadmap: Windows desktop build, iPadOS (needs a Mac or cloud build), station map.

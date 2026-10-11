@@ -10,6 +10,8 @@ class Station {
     this.tags = '',
     this.codec = '',
     this.bitrate = 0,
+    this.lat,
+    this.lon,
   });
 
   final String uuid;
@@ -21,6 +23,12 @@ class Station {
   final String tags;
   final String codec;
   final int bitrate;
+
+  /// Station location, when Radio Browser knows it (used by the map).
+  final double? lat;
+  final double? lon;
+
+  bool get hasGeo => lat != null && lon != null;
 
   factory Station.fromApi(Map<String, dynamic> j) {
     final resolved = (j['url_resolved'] ?? '').toString().trim();
@@ -34,6 +42,8 @@ class Station {
       tags: (j['tags'] ?? '').toString(),
       codec: (j['codec'] ?? '').toString(),
       bitrate: (j['bitrate'] is int) ? j['bitrate'] as int : 0,
+      lat: (j['geo_lat'] as num?)?.toDouble(),
+      lon: (j['geo_long'] as num?)?.toDouble(),
     );
   }
 
@@ -47,6 +57,8 @@ class Station {
         tags: j['tags'] as String? ?? '',
         codec: j['codec'] as String? ?? '',
         bitrate: j['bitrate'] as int? ?? 0,
+        lat: (j['lat'] as num?)?.toDouble(),
+        lon: (j['lon'] as num?)?.toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +71,8 @@ class Station {
         'tags': tags,
         'codec': codec,
         'bitrate': bitrate,
+        if (lat != null) 'lat': lat,
+        if (lon != null) 'lon': lon,
       };
 
   /// Short "Country · tag, tag · 128 kbps" description line.

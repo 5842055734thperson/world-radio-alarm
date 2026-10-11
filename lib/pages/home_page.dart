@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../theme.dart';
+import '../widgets/brut.dart';
 import '../widgets/station_widgets.dart';
 import 'alarms_page.dart';
 import 'discover_page.dart';
 import 'favorites_page.dart';
+import 'map_page.dart';
 import 'player_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,8 +18,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  // Start on favorites once the user has some; otherwise on discovery.
-  late int _tab = favorites.stations.isEmpty ? 0 : 1;
+  int _tab = 0;
+
+  static const _tabs = [
+    (Icons.public, 'HARİTA'),
+    (Icons.search, 'ARA'),
+    (Icons.favorite_border, 'KİTAPLIK'),
+    (Icons.alarm, 'ALARM'),
+  ];
 
   @override
   void initState() {
@@ -38,31 +47,57 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      body: IndexedStack(
-        index: _tab,
-        children: const [DiscoverPage(), FavoritesPage(), AlarmsPage()],
+      body: SafeArea(
+        bottom: false,
+        child: IndexedStack(
+          index: _tab,
+          children: const [MapPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
+        ),
       ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const MiniPlayer(),
-          NavigationBar(
-            selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
-            destinations: const [
-              NavigationDestination(icon: Icon(Icons.public), label: 'Keşfet'),
-              NavigationDestination(
-                icon: Icon(Icons.star_border),
-                selectedIcon: Icon(Icons.star),
-                label: 'Favoriler',
+          Container(
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              border: Border(top: BorderSide(color: scheme.onSurface, width: kBorder)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  for (var i = 0; i < _tabs.length; i++)
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => setState(() => _tab = i),
+                        child: Container(
+                          height: 60,
+                          color: i == _tab ? scheme.onSurface : null,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(_tabs[i].$1,
+                                  size: 20, color: i == _tab ? scheme.surface : scheme.onSurface),
+                              const SizedBox(height: 4),
+                              Text(
+                                _tabs[i].$2,
+                                style: mono(context,
+                                    size: 10,
+                                    weight: FontWeight.w700,
+                                    spacing: 1,
+                                    color: i == _tab ? scheme.surface : scheme.onSurface),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              NavigationDestination(
-                icon: Icon(Icons.alarm_outlined),
-                selectedIcon: Icon(Icons.alarm),
-                label: 'Alarmlar',
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -70,7 +105,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 }
 
-/// Small "now playing" bar above the navigation; tap for the full player.
+/// "Now playing" bar above the tabs; tap for the full player.
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
 
@@ -82,15 +117,20 @@ class MiniPlayer extends StatelessWidget {
         final s = player.station;
         if (s == null) return const SizedBox.shrink();
         final scheme = Theme.of(context).colorScheme;
+        final status = player.error ??
+            (player.loading ? 'BAĞLANIYOR…' : player.nowPlaying ?? (player.playing ? 'CANLI' : 'DURDU'));
         return Material(
-          color: scheme.surfaceContainerHigh,
+          color: scheme.surface,
           child: InkWell(
             onTap: () => showPlayer(context),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: scheme.onSurface, width: kBorder)),
+              ),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               child: Row(
                 children: [
-                  StationLogo(s, size: 40),
+                  StationLogo(s, size: 44),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -99,34 +139,34 @@ class MiniPlayer extends StatelessWidget {
                         Text(s.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                        const SizedBox(height: 2),
                         Text(
-                          player.error ??
-                              (player.loading
-                                  ? 'Bağlanıyor…'
-                                  : player.nowPlaying ?? s.country),
+                          upper(status),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: player.error != null ? scheme.error : null,
-                          ),
+                          style: mono(context,
+                              size: 11, color: player.error != null ? scheme.error : scheme.onSurfaceVariant),
                         ),
                       ],
                     ),
                   ),
-                  if (player.loading)
-                    const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: SizedBox(
-                          width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
-                    )
-                  else
-                    IconButton(
-                      iconSize: 32,
-                      icon: Icon(player.playing ? Icons.stop_rounded : Icons.play_arrow_rounded),
-                      onPressed: player.toggle,
-                    ),
+                  const SizedBox(width: 8),
+                  player.loading
+                      ? const SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Padding(
+                            padding: EdgeInsets.all(12),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : BrutIconButton(
+                          player.playing ? Icons.stop : Icons.play_arrow,
+                          inverted: true,
+                          tooltip: player.playing ? 'Durdur' : 'Çal',
+                          onTap: player.toggle,
+                        ),
                 ],
               ),
             ),

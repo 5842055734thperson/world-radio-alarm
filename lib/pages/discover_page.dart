@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../app_state.dart';
 import '../models/station.dart';
+import '../theme.dart';
+import '../widgets/brut.dart';
 import '../widgets/station_widgets.dart';
 
 class DiscoverPage extends StatelessWidget {
@@ -11,16 +13,41 @@ class DiscoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(child: StationSearch());
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PageTitle('Ara'),
+        Expanded(child: StationSearch()),
+      ],
+    );
+  }
+}
+
+/// All stations of one country (opened from the map).
+class CountryStationsPage extends StatelessWidget {
+  const CountryStationsPage({super.key, required this.code, required this.name});
+
+  final String code;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('${flagEmoji(code)}  ${upper(name)}')),
+      body: StationSearch(fixedCountry: code),
+    );
   }
 }
 
 /// Search box + country + genre filters + endless station list.
-/// Used on the Discover tab and in the alarm station picker ([onSelect]).
+/// Used on the search tab, country pages and the alarm station picker ([onSelect]).
 class StationSearch extends StatefulWidget {
-  const StationSearch({super.key, this.onSelect});
+  const StationSearch({super.key, this.onSelect, this.fixedCountry});
 
   final ValueChanged<Station>? onSelect;
+
+  /// Locks the list to one country and hides the country picker.
+  final String? fixedCountry;
 
   @override
   State<StationSearch> createState() => _StationSearchState();
@@ -62,6 +89,8 @@ class _StationSearchState extends State<StationSearch> {
   String? _error;
   int _requestId = 0;
 
+  String get _country => widget.fixedCountry ?? favorites.countryCode;
+
   @override
   void initState() {
     super.initState();
@@ -97,7 +126,7 @@ class _StationSearchState extends State<StationSearch> {
     try {
       final page = await api.search(
         name: _query,
-        countryCode: favorites.countryCode,
+        countryCode: _country,
         tag: _genre,
         offset: _stations.length,
       );
@@ -128,7 +157,6 @@ class _StationSearchState extends State<StationSearch> {
     final picked = await showModalBottomSheet<Country>(
       context: context,
       isScrollControlled: true,
-      showDragHandle: true,
       builder: (_) => const _CountryPicker(),
     );
     if (picked != null) {
@@ -143,57 +171,63 @@ class _StationSearchState extends State<StationSearch> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Row(
             children: [
               Expanded(
-                child: SearchBar(
+                child: TextField(
                   controller: _controller,
-                  hintText: 'İstasyon ara',
-                  leading: const Icon(Icons.search),
-                  trailing: [
-                    if (_controller.text.isNotEmpty)
-                      IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _controller.clear();
-                          _onQueryChanged('');
-                        },
-                      ),
-                  ],
-                  onChanged: _onQueryChanged,
+                  style: mono(context, size: 15),
+                  decoration: InputDecoration(
+                    hintText: 'İSTASYON ADI',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _controller.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              _controller.clear();
+                              _onQueryChanged('');
+                              setState(() {});
+                            },
+                          ),
+                  ),
+                  onChanged: (v) {
+                    setState(() {});
+                    _onQueryChanged(v);
+                  },
                 ),
               ),
-              const SizedBox(width: 8),
-              ActionChip(
-                avatar: Text(code.isEmpty ? '🌍' : flagEmoji(code)),
-                label: Text(code.isEmpty ? 'Dünya' : code),
-                onPressed: _pickCountry,
-              ),
+              if (widget.fixedCountry == null) ...[
+                const SizedBox(width: 8),
+                BrutBox(
+                  height: 52,
+                  onTap: _pickCountry,
+                  tooltip: 'Ülke seç',
+                  child: Text(code.isEmpty ? '🌍 TÜMÜ' : '${flagEmoji(code)} $code'),
+                ),
+              ],
             ],
           ),
         ),
         SizedBox(
-          height: 48,
-          child: ListView(
+          height: 56,
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            children: [
-              for (final (tag, label) in _genres)
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(
-                    label: Text(label),
-                    selected: _genre == tag,
-                    onSelected: (_) {
-                      _genre = tag;
-                      _reload();
-                    },
-                  ),
-                ),
-            ],
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+            itemCount: _genres.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 6),
+            itemBuilder: (_, i) => BrutChip(
+              _genres[i].$2,
+              selected: _genre == _genres[i].$1,
+              onTap: () {
+                _genre = _genres[i].$1;
+                _reload();
+              },
+            ),
           ),
         ),
+        Divider(height: kBorder, thickness: kBorder, color: Theme.of(context).colorScheme.onSurface),
         Expanded(child: _buildList()),
       ],
     );
@@ -201,17 +235,17 @@ class _StationSearchState extends State<StationSearch> {
 
   Widget _buildList() {
     if (_stations.isEmpty) {
-      if (_loading) return const Center(child: CircularProgressIndicator());
+      if (_loading) return const Center(child: CircularProgressIndicator(strokeWidth: 2));
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_error ?? 'İstasyon bulunamadı.', textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              if (_error != null)
-                FilledButton(onPressed: _reload, child: const Text('Tekrar dene')),
+              Text(upper(_error ?? 'İstasyon bulunamadı.'),
+                  textAlign: TextAlign.center, style: mono(context, size: 13)),
+              const SizedBox(height: 16),
+              if (_error != null) BrutBox(onTap: _reload, inverted: true, child: const Text('TEKRAR DENE')),
             ],
           ),
         ),
@@ -226,7 +260,7 @@ class _StationSearchState extends State<StationSearch> {
           if (i == _stations.length) {
             return const Padding(
               padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
             );
           }
           final s = _stations[i];
@@ -273,47 +307,64 @@ class _CountryPickerState extends State<_CountryPicker> {
     final list = _countries
         ?.where((c) => f.isEmpty || c.name.toLowerCase().contains(f) || c.code.toLowerCase() == f)
         .toList();
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.8,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search),
-                hintText: 'Ülke ara (ör. Turkey, Germany)',
-              ),
-              onChanged: (v) => setState(() => _filter = v),
+    final scheme = Theme.of(context).colorScheme;
+    Widget row(String flag, String name, String trailing, VoidCallback onTap) => InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: scheme.onSurface.withValues(alpha: 0.2))),
+            ),
+            child: Row(
+              children: [
+                Text(flag, style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 12),
+                Expanded(child: Text(upper(name), style: const TextStyle(fontWeight: FontWeight.w700))),
+                Text(trailing, style: mono(context, size: 11, color: scheme.onSurfaceVariant)),
+              ],
             ),
           ),
-          ListTile(
-            leading: const Text('🌍', style: TextStyle(fontSize: 24)),
-            title: const Text('Tüm dünya'),
-            onTap: () => Navigator.pop(context, const Country('', 'Tüm dünya', 0)),
-          ),
-          const Divider(height: 1),
-          Expanded(
-            child: list == null
-                ? Center(
-                    child: _failed
-                        ? const Text('Ülke listesi yüklenemedi.')
-                        : const CircularProgressIndicator(),
-                  )
-                : ListView.builder(
-                    itemCount: list.length,
-                    itemBuilder: (context, i) {
-                      final c = list[i];
-                      return ListTile(
-                        leading: Text(flagEmoji(c.code), style: const TextStyle(fontSize: 24)),
-                        title: Text(c.name),
-                        trailing: Text('${c.stationCount}'),
-                        onTap: () => Navigator.pop(context, c),
-                      );
-                    },
-                  ),
-          ),
-        ],
+        );
+    return SafeArea(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(child: Text('ÜLKE', style: display(context, size: 28))),
+                  BrutIconButton(Icons.close, size: 40, onTap: () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: TextField(
+                style: mono(context, size: 15),
+                decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'ÜLKE ARA (TURKEY, GERMANY…)'),
+                onChanged: (v) => setState(() => _filter = v),
+              ),
+            ),
+            row('🌍', 'Tüm dünya', '', () => Navigator.pop(context, const Country('', 'Tüm dünya', 0))),
+            Expanded(
+              child: list == null
+                  ? Center(
+                      child: _failed
+                          ? Text('ÜLKE LİSTESİ YÜKLENEMEDİ', style: mono(context))
+                          : const CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : ListView.builder(
+                      itemCount: list.length,
+                      itemBuilder: (context, i) {
+                        final c = list[i];
+                        return row(flagEmoji(c.code), c.name, '${c.stationCount}', () => Navigator.pop(context, c));
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
