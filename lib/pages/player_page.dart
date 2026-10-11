@@ -50,7 +50,12 @@ class PlayerPage extends StatelessWidget {
                         BrutIconButton(Icons.keyboard_arrow_down,
                             size: 40, tooltip: 'Close', onTap: () => Navigator.pop(context)),
                         const Spacer(),
-                        Text(player.playing ? '● LIVE' : '○ STOPPED',
+                        Text(
+                            !player.playing
+                                ? (player.canTimeshift ? '❙❙ PAUSED' : '○ STOPPED')
+                                : player.isLive
+                                    ? '● LIVE'
+                                    : '◀ ${formatBehind(player.behindSeconds)}',
                             style: mono(context, size: 12, weight: FontWeight.w700, spacing: 2)),
                       ],
                     ),
@@ -75,6 +80,10 @@ class PlayerPage extends StatelessWidget {
                       Text('NOW: ${upper(player.nowPlaying!)}',
                           maxLines: 2, overflow: TextOverflow.ellipsis, style: mono(context, size: 13)),
                     const Spacer(),
+                    if (player.canTimeshift) ...[
+                      const TimeshiftBar(),
+                      const SizedBox(height: 16),
+                    ],
                     Row(
                       children: [
                         BrutIconButton(
@@ -166,4 +175,128 @@ class _SleepButton extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// "−04:12" for seconds behind live.
+String formatBehind(double seconds) {
+  final s = seconds.round();
+  return '−${(s ~/ 60).toString().padLeft(2, '0')}:${(s % 60).toString().padLeft(2, '0')}';
+}
+
+/// Rewind bar for the timeshift buffer: drag along the line, or use the
+/// buttons. The right end is the live broadcast.
+class TimeshiftBar extends StatefulWidget {
+  const TimeshiftBar({super.key});
+
+  @override
+  State<TimeshiftBar> createState() => _TimeshiftBarState();
+}
+
+class _TimeshiftBarState extends State<TimeshiftBar> {
+  double? _drag; // seconds behind while dragging
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final window = settings.timeshiftMinutes * 60.0;
+    final buffered = player.bufferedSeconds;
+    final behind = _drag ?? player.behindSeconds;
+    double toX(double secsBehind, double w) => w * (1 - secsBehind / window);
+    double fromX(double x, double w) => ((1 - x / w) * window).clamp(0.0, buffered);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text('TIMESHIFT · ${settings.timeshiftMinutes} MIN',
+                style: mono(context, size: 11, weight: FontWeight.w700, spacing: 1)),
+            const Spacer(),
+            Text(behind < 8 ? 'LIVE' : formatBehind(behind),
+                style: mono(context, size: 11, weight: FontWeight.w700, spacing: 1)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        LayoutBuilder(builder: (context, c) {
+          final w = c.maxWidth;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragStart: (d) => setState(() => _drag = fromX(d.localPosition.dx, w)),
+            onHorizontalDragUpdate: (d) => setState(() => _drag = fromX(d.localPosition.dx, w)),
+            onHorizontalDragEnd: (_) {
+              final target = _drag;
+              setState(() => _drag = null);
+              if (target != null) player.seekBehind(target);
+            },
+            onTapUp: (d) => player.seekBehind(fromX(d.localPosition.dx, w)),
+            child: SizedBox(
+              height: 36,
+              child: CustomPaint(
+                painter: _TimeshiftPainter(
+                  ink: scheme.onSurface,
+                  muted: scheme.onSurfaceVariant,
+                  bufferedFromX: toX(buffered, w),
+                  markerX: toX(behind, w),
+                ),
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Text('−${settings.timeshiftMinutes}:00', style: mono(context, size: 10, color: scheme.onSurfaceVariant)),
+            const Spacer(),
+            Text('NOW', style: mono(context, size: 10, color: scheme.onSurfaceVariant)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(child: BrutBox(onTap: () => player.skip(-30), child: const Text('−30S'))),
+            const SizedBox(width: 8),
+            Expanded(child: BrutBox(onTap: () => player.skip(30), child: const Text('+30S'))),
+            const SizedBox(width: 8),
+            Expanded(
+              child: BrutBox(
+                inverted: player.isLive && player.playing,
+                onTap: player.goLive,
+                child: const Text('● LIVE'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TimeshiftPainter extends CustomPainter {
+  _TimeshiftPainter({required this.ink, required this.muted, required this.bufferedFromX, required this.markerX});
+
+  final Color ink;
+  final Color muted;
+  final double bufferedFromX;
+  final double markerX;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final mid = size.height / 2;
+    // Not yet recorded: dotted. Recorded: solid. Played-through part: thick.
+    final dot = Paint()..color = muted;
+    for (var x = 0.0; x < bufferedFromX; x += 6) {
+      canvas.drawRect(Rect.fromLTWH(x, mid - 1, 2, 2), dot);
+    }
+    canvas.drawRect(Rect.fromLTRB(bufferedFromX, mid - 1, size.width, mid + 1), Paint()..color = ink);
+    canvas.drawRect(Rect.fromLTRB(bufferedFromX, mid - 3, markerX, mid + 3), Paint()..color = ink);
+    // Live end tick and position marker.
+    canvas.drawRect(Rect.fromLTWH(size.width - 2, mid - 10, 2, 20), Paint()..color = ink);
+    final m = markerX.clamp(7.0, size.width - 7.0);
+    canvas.drawRect(Rect.fromCenter(center: Offset(m, mid), width: 14, height: 22), Paint()..color = ink);
+  }
+
+  @override
+  bool shouldRepaint(_TimeshiftPainter old) =>
+      old.bufferedFromX != bufferedFromX || old.markerX != markerX || old.ink != ink;
 }

@@ -26,6 +26,14 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Minutes of live audio kept for rewinding (0 = off).
+  int get timeshiftMinutes => _prefs.getInt('timeshift') ?? 15;
+
+  void setTimeshiftMinutes(int m) {
+    _prefs.setInt('timeshift', m);
+    notifyListeners();
+  }
+
   String get themeLabel => switch (themeMode) {
         ThemeMode.system => 'AUTO',
         ThemeMode.light => 'LIGHT',

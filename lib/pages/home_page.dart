@@ -7,7 +7,7 @@ import '../widgets/station_widgets.dart';
 import 'alarms_page.dart';
 import 'discover_page.dart';
 import 'favorites_page.dart';
-import 'feed_page.dart';
+import 'graph_page.dart';
 import 'map_page.dart';
 import 'player_page.dart';
 
@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const _tabs = [
     (Icons.public, 'MAP'),
-    (Icons.style_outlined, 'DISCOVER'),
+    (Icons.hub_outlined, 'DISCOVER'),
     (Icons.search, 'SEARCH'),
     (Icons.favorite_border, 'LIBRARY'),
     (Icons.alarm, 'ALARM'),
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         bottom: false,
         child: IndexedStack(
           index: _tab,
-          children: const [MapPage(), FeedPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
+          children: const [MapPage(), GraphPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
         ),
       ),
       bottomNavigationBar: Column(
@@ -123,8 +123,11 @@ class MiniPlayer extends StatelessWidget {
         final s = player.station;
         if (s == null) return const SizedBox.shrink();
         final scheme = Theme.of(context).colorScheme;
+        final behind = player.canTimeshift && !player.isLive ? '${formatBehind(player.behindSeconds)} · ' : '';
         final status = player.error ??
-            (player.loading ? 'CONNECTING…' : player.nowPlaying ?? (player.playing ? 'LIVE' : 'STOPPED'));
+            (player.loading
+                ? 'CONNECTING…'
+                : behind + (player.nowPlaying ?? (player.playing ? 'LIVE' : player.canTimeshift ? 'PAUSED' : 'STOPPED')));
         return Material(
           color: scheme.surface,
           child: InkWell(

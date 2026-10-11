@@ -19,16 +19,21 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 - **~50,000 stations** from the free [Radio Browser](https://www.radio-browser.info)
   directory: internet radios and the online streams of terrestrial (FM/AM) stations.
-- **Discover feed**, inspired by everynoise.com: an endless stack of station "catalogue
-  cards" (name, country, language, genre, format). Swipe up for the next one; the new card
-  flips up like a card in an index drawer and starts playing when you stop on it. Each card
-  shows which station it came from (VIA) and what they share (LINK); the path alternates
-  stations from the same country and from abroad. Relatedness is estimated from shared
-  genre tags, language and popularity (Radio Browser has no co-listening data). Long-press
-  any station, or use "Discover similar stations" in the player, to start from it.
+- **Discover tree**, inspired by everynoise.com: start from a station; each tap plays a
+  station and branches out to related ones — three from the same country (solid lines)
+  and three from other countries (dashed lines). Hold a box to fold its branches.
+  Relatedness is estimated from shared genre tags, language and popularity (Radio
+  Browser has no co-listening data). Long-press any station, or use "Discover similar
+  stations" in the player, to start from it.
 - Search by name, filter by **country** (Türkiye by default, or the whole world) and **genre**.
 - Background playback with notification / lock-screen controls, current song title (ICY metadata).
 - **Favorites** (drag to reorder) and recently played stations.
+- **Timeshift (rewind live radio)**: the live MP3/AAC stream is recorded into a rolling
+  15- or 30-minute in-memory buffer (setting in Library; off is possible). Pause really
+  pauses, the player shows how far behind live you are, and you can drag the rewind bar,
+  jump ±30 s or snap back to LIVE. Song titles (ICY metadata) follow the rewound
+  position. HLS/Ogg streams and servers that can't be recorded fall back to normal live
+  playback.
 - **Sleep timer** (15–120 min, fades out).
 - **Radio alarm clock**
   - repeat on chosen weekdays or ring once
@@ -56,11 +61,12 @@ If the cache is ever evicted, the next APK gets a new key and the old app must b
 | Path | What |
 |---|---|
 | `lib/services/radio_browser.dart` | Radio Browser API client with mirror fallback |
-| `lib/services/player.dart` | just_audio playback, sleep timer |
+| `lib/services/player.dart` | just_audio playback, timeshift control, sleep timer |
+| `lib/services/timeshift.dart` | Rolling stream recorder (ICY de-interleaving) and player source |
 | `lib/services/alarms.dart` | Method-channel bridge to the native alarm engine |
 | `lib/theme.dart`, `lib/widgets/brut.dart` | Brutalist theme and building blocks |
 | `lib/map/world_map_data.dart`, `lib/pages/map_page.dart` | World map: outlines, projection, station dots, tap handling |
-| `lib/services/similar.dart`, `lib/pages/feed_page.dart` | Related-station scoring and the Discover card feed |
+| `lib/services/similar.dart`, `lib/pages/graph_page.dart` | Related-station scoring and the Discover tree |
 | `lib/services/geo_stations.dart` | Popular stations with coordinates (cached 3 days) |
 | `lib/pages/` | Map, search, library, alarms, alarm editor, full-screen player |
 | `assets/world.json` | Coastlines, borders and country shapes, built by `tool/build_map.py` from Natural Earth 1:50m |

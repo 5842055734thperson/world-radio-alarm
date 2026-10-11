@@ -33,6 +33,6 @@ void exploreFrom(Station s) {
 Future<void> initAppState() async {
   favorites = await Favorites.load();
   settings = await Settings.load();
-  player = RadioPlayer(api, favorites);
+  player = RadioPlayer(api, favorites, settings);
   await alarms.refresh();
 }
