@@ -5,7 +5,7 @@ Usage:
                              ne_50m_admin_0_countries .geojson> assets/world.json
 
 Output (coordinates are integers: degrees * 100, flattened lon,lat pairs):
-  land     coastline rings, drawn at every zoom level
+  land     coastline polylines (open; pole/antimeridian edges removed), drawn at every zoom level
   borders  country border lines, faded in when zooming
   c        country outlines (ISO code, English name) used only to find the tapped country
 """
@@ -57,6 +57,30 @@ def lines(geom):
     return geom['coordinates'] if geom['type'] == 'MultiLineString' else [geom['coordinates']]
 
 
+def artificial(a, b):
+    """Polygon edges along the poles or the antimeridian are not coastline."""
+    return (abs(a[1]) > 89.9 and abs(b[1]) > 89.9) or (abs(a[0]) > 179.9 and abs(b[0]) > 179.9)
+
+
+def coast_lines(ring):
+    """Splits a closed ring into open polylines, dropping artificial edges."""
+    pts = ring if ring[0] == ring[-1] else ring + [ring[0]]
+    lines, cur = [], [pts[0]]
+    for a, b in zip(pts, pts[1:]):
+        if artificial(a, b):
+            if len(cur) >= 2:
+                lines.append(cur)
+            cur = [b]
+        else:
+            cur.append(b)
+    if len(cur) >= 2:
+        lines.append(cur)
+    # Re-join the wrap-around piece with the first one when the ring was cut.
+    if len(lines) > 1 and lines[-1][-1] == lines[0][0]:
+        lines[0] = lines.pop()[:-1] + lines[0]
+    return lines
+
+
 land = []
 for f in load('ne_50m_land'):
     for poly in polys(f['geometry']):
@@ -64,7 +88,7 @@ for f in load('ne_50m_land'):
         xs = [x for x, _ in ring]; ys = [y for _, y in ring]
         # skip specks smaller than ~20 km: they only add noise to a line map
         if len(ring) >= 4 and max(max(xs) - min(xs), max(ys) - min(ys)) >= 0.2:
-            land.append(flat(ring))
+            land.extend(flat(l) for l in coast_lines(ring))
 
 borders = []
 for f in load('ne_50m_admin_0_boundary_lines_land'):
@@ -84,5 +108,5 @@ for f in load('ne_50m_admin_0_countries'):
         countries.append({'i': iso, 'n': p.get('NAME_EN') or p.get('NAME', ''), 'r': rings})
 
 json.dump({'land': land, 'borders': borders, 'c': countries}, open(out, 'w'), separators=(',', ':'))
-print(len(land), 'land rings,', len(borders), 'border lines,', len(countries), 'countries,',
+print(len(land), 'coast lines,', len(borders), 'border lines,', len(countries), 'countries,',
       os.path.getsize(out), 'bytes')

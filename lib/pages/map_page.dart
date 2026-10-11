@@ -275,7 +275,6 @@ class _MapPainter extends CustomPainter {
       ..color = ink
       ..strokeJoin = StrokeJoin.round
       ..strokeWidth = px;
-    canvas.drawPath(map.frame, line);
     canvas.drawPath(map.land, line);
     // Political borders appear only when zooming in.
     final borderAlpha = ((s - bordersFrom) / (bordersFull - bordersFrom)).clamp(0.0, 1.0);

@@ -35,6 +35,39 @@ class Similar {
     return rank(seed, candidates, exclude: exclude);
   }
 
+  /// Suggestions from listening history: a couple of related stations for each
+  /// of the most recent stations, or popular stations in [country] when there
+  /// is no history yet.
+  Future<List<Station>> forYou(
+    List<Station> history, {
+    required String country,
+    Set<String> exclude = const {},
+    int count = 6,
+  }) async {
+    final seen = {...exclude, for (final h in history) h.uuid};
+    final seeds = history.take(3).toList();
+    final out = <Station>[];
+    if (seeds.isNotEmpty) {
+      final per = (count / seeds.length).ceil();
+      final lists = await Future.wait(seeds.map((s) => related(s, exclude: seen).catchError((_) => <Station>[])));
+      for (final list in lists) {
+        var taken = 0;
+        for (final s in list) {
+          if (taken == per || out.length == count) break;
+          if (seen.add(s.uuid)) {
+            out.add(s);
+            taken++;
+          }
+        }
+      }
+    }
+    if (out.isEmpty) {
+      final popular = await _api.search(countryCode: country, limit: 20).catchError((_) => <Station>[]);
+      out.addAll(popular.where((s) => seen.add(s.uuid)).take(count));
+    }
+    return out;
+  }
+
   Future<List<Station>> _candidates(Station seed) async {
     final tag = mainTag(seed);
     final lang = seed.languageSet.isEmpty ? '' : seed.languageSet.first;

@@ -5,7 +5,7 @@ import '../theme.dart';
 import '../widgets/brut.dart';
 import '../widgets/station_widgets.dart';
 
-/// "Library": favorite stations (drag to reorder) and recently played.
+/// Library (under Discover): favorites (drag to reorder), recently played, settings.
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
 
@@ -18,15 +18,6 @@ class FavoritesPage extends StatelessWidget {
         final recent = favorites.recent.where((s) => !favorites.contains(s)).take(10).toList();
         return CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: PageTitle(
-                'Library',
-                trailing: ListenableBuilder(
-                  listenable: settings,
-                  builder: (context, _) => ThemeButton(label: settings.themeLabel, onTap: settings.cycleTheme),
-                ),
-              ),
-            ),
             SliverToBoxAdapter(child: SectionLabel('Favorites · ${favs.length}')),
             if (favs.isEmpty)
               SliverToBoxAdapter(
@@ -64,6 +55,21 @@ class FavoritesPage extends StatelessWidget {
                   builder: (context, _) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text('THEME', style: label(context, size: 12, weight: FontWeight.w700, spacing: 1)),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          for (final (mode, name) in const [
+                            (ThemeMode.system, 'Auto'),
+                            (ThemeMode.light, 'Light'),
+                            (ThemeMode.dark, 'Dark'),
+                          ]) ...[
+                            BrutChip(name, selected: settings.themeMode == mode, onTap: () => settings.setThemeMode(mode)),
+                            const SizedBox(width: 8),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                       Text('TIMESHIFT BUFFER', style: label(context, size: 12, weight: FontWeight.w700, spacing: 1)),
                       const SizedBox(height: 4),
                       Text(

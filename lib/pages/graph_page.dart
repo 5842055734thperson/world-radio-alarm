@@ -6,11 +6,11 @@ import '../app_state.dart';
 import '../models/station.dart';
 import '../theme.dart';
 import '../widgets/brut.dart';
-import '../widgets/station_widgets.dart';
 
-/// Discover tree, inspired by everynoise.com: start from one station, tap a
-/// station to play it and branch out to related stations — some from the same
-/// country (solid lines), some from other countries (dashed lines).
+/// Discover tree, inspired by everynoise.com. It starts from the station that
+/// is playing, or — when nothing plays — from a "For you" node with suggestions
+/// based on listening history. Tap a station to play it and branch out to
+/// related stations: same country (solid lines) and abroad (dashed lines).
 class GraphPage extends StatefulWidget {
   const GraphPage({super.key});
 
@@ -29,8 +29,15 @@ class _Node {
   bool loading = false;
   bool empty = false;
 
-  bool get crossCountry => parent != null && parent!.station.countryCode != station.countryCode;
+  /// The "For you" root that has no station of its own.
+  bool get isVirtual => station.uuid == _forYouId;
+
+  bool get crossCountry =>
+      parent != null && !parent!.isVirtual && parent!.station.countryCode != station.countryCode;
 }
+
+const _forYouId = '__for_you__';
+const _forYou = Station(uuid: _forYouId, name: 'For you', url: '');
 
 class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMixin {
   static const _canvas = 4000.0;
@@ -57,21 +64,39 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
       if (_move != null) _tc.value = _move!.value;
     });
     discoverSeed.addListener(_onSeed);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _onSeed());
+    homeTab.addListener(_onTabChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onTabChanged());
   }
 
   @override
   void dispose() {
     discoverSeed.removeListener(_onSeed);
+    homeTab.removeListener(_onTabChanged);
     _anim.dispose();
     _tc.dispose();
     super.dispose();
   }
 
+  /// Explicit "explore from this station" (player button, long-press).
   void _onSeed() {
     final seed = discoverSeed.value;
-    if (seed == null || seed == _root?.station) return;
-    final root = _Node(seed, _center, null);
+    if (seed != null && seed != _root?.station) _start(seed);
+  }
+
+  /// When the Discover tab opens: follow the playing station unless it is
+  /// already part of the tree; otherwise keep the tree, or start "For you".
+  void _onTabChanged() {
+    if (homeTab.value != 1 || !mounted) return;
+    final playing = player.station;
+    if (playing != null && !_nodes.any((n) => n.station == playing)) {
+      _start(playing);
+    } else if (_root == null) {
+      _start(null);
+    }
+  }
+
+  void _start(Station? seed) {
+    final root = _Node(seed ?? _forYou, _center, null);
     setState(() {
       _root = root;
       _nodes
@@ -87,10 +112,14 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   Future<void> _expand(_Node n) async {
     if (n.expanded || n.loading) return;
     setState(() => n.loading = true);
-    final related = await similar.related(
-      n.station,
-      exclude: {for (final x in _nodes) x.station.uuid},
-    );
+    final exclude = {for (final x in _nodes) x.station.uuid};
+    final related = n.isVirtual
+        ? await similar.forYou(
+            [...favorites.recent, ...favorites.stations.where((s) => !favorites.recent.contains(s))],
+            country: favorites.countryCode,
+            exclude: exclude,
+          )
+        : await similar.related(n.station, exclude: exclude);
     if (!mounted || !_nodes.contains(n)) return;
     setState(() {
       n.loading = false;
@@ -155,7 +184,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   }
 
   void _onTapNode(_Node n) {
-    if (player.station != n.station || !player.playing) player.play(n.station);
+    if (!n.isVirtual && (player.station != n.station || !player.playing)) player.play(n.station);
     _expand(n);
     _centerOn(n);
   }
@@ -185,7 +214,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final root = _root;
-    if (root == null) return const _SeedPicker();
+    if (root == null) return const Center(child: CircularProgressIndicator(strokeWidth: 2));
     final scheme = Theme.of(context).colorScheme;
     return Stack(
       children: [
@@ -250,8 +279,13 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('DISCOVER', style: display(context, size: 30)),
-                      const SizedBox(height: 6),
+                      Text(
+                        root.isVirtual ? 'FOR YOU · FROM YOUR LISTENING' : 'FROM ${upper(root.station.name)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: label(context, size: 11, weight: FontWeight.w700, spacing: 1),
+                      ),
+                      const SizedBox(height: 4),
                       Text('━━ SAME COUNTRY   ┅┅ ABROAD', style: label(context, size: 10, spacing: 1)),
                       const SizedBox(height: 2),
                       Text('TAP: PLAY + BRANCH · HOLD: FOLD',
@@ -263,13 +297,13 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
               BrutIconButton(Icons.center_focus_strong,
                   size: 40, tooltip: 'Back to start', onTap: () => _centerOn(root, scale: 0.85)),
               const SizedBox(width: 8),
-              BrutIconButton(Icons.refresh, size: 40, tooltip: 'New start', onTap: () {
-                discoverSeed.value = null;
-                setState(() {
-                  _root = null;
-                  _nodes.clear();
-                });
-              }),
+              BrutIconButton(Icons.refresh,
+                  size: 40,
+                  tooltip: 'New start',
+                  onTap: () {
+                    discoverSeed.value = null;
+                    _start(player.station);
+                  }),
             ],
           ),
         ),
@@ -319,7 +353,7 @@ class _NodeBox extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('${flagEmoji(s.countryCode)} ${s.countryCode}',
+                Text(node.isVirtual ? '◎ HISTORY' : '${flagEmoji(s.countryCode)} ${s.countryCode}',
                     style: label(context, size: 10, weight: FontWeight.w700, color: fg)),
                 const Spacer(),
                 Text(status, style: label(context, size: 12, weight: FontWeight.w700, color: fg)),
@@ -378,54 +412,4 @@ class _EdgePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_EdgePainter old) => true;
-}
-
-/// Shown until a starting station is chosen.
-class _SeedPicker extends StatelessWidget {
-  const _SeedPicker();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: Listenable.merge([player, favorites]),
-      builder: (context, _) {
-        final current = player.station;
-        final mine = [
-          ...favorites.stations,
-          ...favorites.recent.where((s) => !favorites.contains(s)),
-        ].where((s) => s != current).take(12).toList();
-        return ListView(
-          children: [
-            const PageTitle('Discover'),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text(
-                upper('Pick a starting station. Each tap branches out to related stations: '
-                    'from the same country and from abroad.'),
-                style: label(context, size: 12),
-              ),
-            ),
-            if (current != null) ...[
-              const SectionLabel('Now playing'),
-              StationTile(current, onTap: () => exploreFrom(current)),
-            ],
-            if (mine.isNotEmpty) ...[
-              const SectionLabel('From your library'),
-              for (final s in mine) StationTile(s, onTap: () => exploreFrom(s)),
-            ],
-            if (current == null && mine.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: BrutBox(
-                  inverted: true,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  onTap: () => homeTab.value = 2,
-                  child: const Text('SEARCH STATIONS →'),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
 }

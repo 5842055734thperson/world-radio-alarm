@@ -19,7 +19,9 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 - **~50,000 stations** from the free [Radio Browser](https://www.radio-browser.info)
   directory: internet radios and the online streams of terrestrial (FM/AM) stations.
-- **Discover tree**, inspired by everynoise.com: start from a station; each tap plays a
+- **Discover tree**, inspired by everynoise.com. Opening the tab starts from the station
+  that is playing; when nothing plays it starts from a "For you" node with suggestions
+  based on recently played and favorite stations. Each tap plays a
   station and branches out to related ones — three from the same country (solid lines)
   and three from other countries (dashed lines). Hold a box to fold its branches.
   Relatedness is estimated from shared genre tags, language and popularity (Radio
@@ -27,7 +29,8 @@ Theme follows the system or can be forced light/dark (the ◐ button).
   stations" in the player, to start from it.
 - Search by name, filter by **country** (Türkiye by default, or the whole world) and **genre**.
 - Background playback with notification / lock-screen controls, current song title (ICY metadata).
-- **Favorites** (drag to reorder) and recently played stations.
+- **Library** (under Discover): favorites (drag to reorder), recently played stations and
+  settings (theme, timeshift buffer).
 - **Timeshift (rewind live radio)**: the live MP3/AAC stream is recorded into a rolling
   15- or 30-minute in-memory buffer (setting in Library; off is possible). Pause really
   pauses, the player shows how far behind live you are, and you can drag the rewind bar,

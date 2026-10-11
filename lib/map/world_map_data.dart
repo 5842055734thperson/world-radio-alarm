@@ -11,16 +11,13 @@ import 'package:flutter/services.dart';
 ///
 /// Map units: x in [0, width], y in [0, height], origin top-left.
 class WorldMapData {
-  WorldMapData._(this.land, this.borders, this.frame, this.countries);
+  WorldMapData._(this.land, this.borders, this.countries);
 
   /// Coastlines: always drawn.
   final Path land;
 
   /// Country borders: faded in when zooming.
   final Path borders;
-
-  /// Outline of the whole projected globe.
-  final Path frame;
 
   /// Country shapes for hit testing only (projected).
   final List<MapCountry> countries;
@@ -57,25 +54,18 @@ class WorldMapData {
 
     final land = Path();
     for (final r in raw['land'] as List) {
-      addTo(land, ring(r as List), close: true);
+      addTo(land, ring(r as List), close: false);
     }
     final borders = Path();
     for (final r in raw['borders'] as List) {
       addTo(borders, ring(r as List), close: false);
     }
-    final frame = Path();
-    final edge = <Offset>[
-      for (var lat = -90; lat <= 90; lat += 2) project(180, lat.toDouble()),
-      for (var lat = 90; lat >= -90; lat -= 2) project(-180, lat.toDouble()),
-    ];
-    frame.addPolygon(edge, true);
-
     final countries = <MapCountry>[];
     for (final c in raw['c'] as List) {
       final rings = [for (final r in c['r'] as List) ring(r as List)];
       countries.add(MapCountry(iso: c['i'] as String, name: c['n'] as String, rings: rings));
     }
-    return _cache = WorldMapData._(land, borders, frame, countries);
+    return _cache = WorldMapData._(land, borders, countries);
   }
 
   /// lon/lat (degrees) -> map units.

@@ -15,6 +15,15 @@ class Settings extends ChangeNotifier {
         _ => ThemeMode.system,
       };
 
+  void setThemeMode(ThemeMode m) {
+    _prefs.setString('theme', switch (m) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => 'system',
+    });
+    notifyListeners();
+  }
+
   /// system -> light -> dark -> system
   void cycleTheme() {
     final next = switch (themeMode) {

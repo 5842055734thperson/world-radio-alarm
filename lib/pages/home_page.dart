@@ -6,8 +6,7 @@ import '../widgets/brut.dart';
 import '../widgets/station_widgets.dart';
 import 'alarms_page.dart';
 import 'discover_page.dart';
-import 'favorites_page.dart';
-import 'graph_page.dart';
+import 'discover_hub.dart';
 import 'map_page.dart';
 import 'player_page.dart';
 
@@ -23,7 +22,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     (Icons.public, 'MAP'),
     (Icons.hub_outlined, 'DISCOVER'),
     (Icons.search, 'SEARCH'),
-    (Icons.favorite_border, 'LIBRARY'),
     (Icons.alarm, 'ALARM'),
   ];
 
@@ -59,7 +57,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         bottom: false,
         child: IndexedStack(
           index: _tab,
-          children: const [MapPage(), GraphPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
+          children: const [MapPage(), DiscoverHub(), DiscoverPage(), AlarmsPage()],
         ),
       ),
       bottomNavigationBar: Column(
