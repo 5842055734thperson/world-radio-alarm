@@ -56,7 +56,11 @@ class PlayerPage extends StatelessWidget {
                                 : player.isLive
                                     ? '● LIVE'
                                     : '◀ ${formatBehind(player.behindSeconds)}',
-                            style: label(context, size: 12, weight: FontWeight.w700, spacing: 2)),
+                            style: label(context,
+                                size: 12,
+                                weight: FontWeight.w700,
+                                spacing: 2,
+                                color: player.playing && player.isLive ? kAccent : null)),
                       ],
                     ),
                     const SizedBox(height: 20),

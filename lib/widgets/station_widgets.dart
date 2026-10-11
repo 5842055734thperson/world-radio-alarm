@@ -87,7 +87,7 @@ class StationTile extends StatelessWidget {
                       Row(
                         children: [
                           if (current) ...[
-                            Container(width: 8, height: 8, color: scheme.onSurface),
+                            Container(width: 8, height: 8, color: kAccent),
                             const SizedBox(width: 8),
                           ],
                           Expanded(

@@ -7,6 +7,9 @@ const kBorder = 2.0;
 const kSans = 'Chillax';
 const kDigits = 'JetBrainsMono';
 
+/// The only colour in the app, used for "now playing": International Orange.
+const kAccent = Color(0xFFFF4F00);
+
 ThemeData brutalTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
   final fg = dark ? Colors.white : Colors.black;
@@ -21,8 +24,9 @@ ThemeData brutalTheme(Brightness brightness) {
     onPrimary: bg,
     secondary: fg,
     onSecondary: bg,
-    error: const Color(0xFFFF2D20),
-    onError: Colors.white,
+    // Errors stay monochrome so the accent only ever means "now playing".
+    error: fg,
+    onError: bg,
     surface: bg,
     onSurface: fg,
     onSurfaceVariant: muted,
@@ -33,6 +37,8 @@ ThemeData brutalTheme(Brightness brightness) {
     surfaceContainer: bg,
     surfaceContainerHigh: bg,
     surfaceContainerHighest: bg,
+    tertiary: kAccent,
+    onTertiary: Colors.black,
     inverseSurface: fg,
     onInverseSurface: bg,
   );

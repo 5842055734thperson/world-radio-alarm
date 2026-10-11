@@ -330,7 +330,7 @@ class _NodeBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final fg = playing ? scheme.surface : scheme.onSurface;
+    final fg = playing ? Colors.black : scheme.onSurface;
     final s = node.station;
     final status = node.loading
         ? '…'
@@ -345,7 +345,7 @@ class _NodeBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
         decoration: BoxDecoration(
-          color: playing ? scheme.onSurface : scheme.surface,
+          color: playing ? kAccent : scheme.surface,
           border: Border.all(color: scheme.onSurface, width: isRoot ? 4 : kBorder),
         ),
         child: Column(

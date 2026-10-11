@@ -11,7 +11,7 @@ import '../widgets/brut.dart';
 import '../widgets/station_widgets.dart';
 import 'discover_page.dart';
 
-/// Line-drawn world map. Pinch or use +/- to zoom, drag to pan,
+/// Line-drawn world map. Pinch to zoom, drag to pan,
 /// tap a dot (or a country) to pick a station.
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -20,11 +20,8 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
+class _MapPageState extends State<MapPage> {
   final _tc = TransformationController();
-  late final AnimationController _anim =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
-  Animation<Matrix4>? _zoomAnim;
 
   WorldMapData? _map;
   MapCountry? _selected;
@@ -41,14 +38,10 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       if (mounted) setState(() => _map = m);
     });
     geoStations.load();
-    _anim.addListener(() {
-      if (_zoomAnim != null) _tc.value = _zoomAnim!.value;
-    });
   }
 
   @override
   void dispose() {
-    _anim.dispose();
     _tc.dispose();
     super.dispose();
   }
@@ -73,18 +66,6 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     return Matrix4.identity()
       ..translateByDouble(v.dx - c.dx * scale, v.dy - c.dy * scale, 0, 1)
       ..scaleByDouble(scale, scale, 1, 1);
-  }
-
-  void _animateTo(Matrix4 target) {
-    _zoomAnim = Matrix4Tween(begin: _tc.value, end: target)
-        .animate(CurvedAnimation(parent: _anim, curve: Curves.easeOutCubic));
-    _anim.forward(from: 0);
-  }
-
-  void _zoomBy(double factor) {
-    final center = _toMap(_tc.toScene(Offset(_viewport.width / 2, _viewport.height / 2)));
-    final s = (_scale * factor).clamp(_minScale, _maxScale);
-    _animateTo(_matrixFor(center, s));
   }
 
   // ---- tapping ----
@@ -194,27 +175,6 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                   ],
                 ),
               ),
-              ListenableBuilder(
-                listenable: settings,
-                builder: (context, _) =>
-                    ThemeButton(label: settings.themeLabel, onTap: settings.cycleTheme),
-              ),
-            ],
-          ),
-        ),
-        // Zoom controls
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: Column(
-            children: [
-              BrutIconButton(Icons.add, tooltip: 'Zoom in', onTap: () => _zoomBy(2)),
-              const SizedBox(height: 8),
-              BrutIconButton(Icons.remove, tooltip: 'Zoom out', onTap: () => _zoomBy(0.5)),
-              const SizedBox(height: 8),
-              BrutIconButton(Icons.public, tooltip: 'Whole world', onTap: () => _animateTo(Matrix4.identity())),
-              const SizedBox(height: 8),
-              BrutIconButton(Icons.my_location, tooltip: 'Home view', onTap: () => _animateTo(_homeMatrix())),
             ],
           ),
         ),
@@ -314,15 +274,17 @@ class _MapPainter extends CustomPainter {
     }
     canvas.drawPath(dots, Paint()..color = ink);
 
-    // Current station: hollow square with a gap around it.
+    // Current station: the one spot of colour — a filled accent square in an
+    // accent ring.
     final cur = player.station;
     if (cur != null && cur.hasGeo) {
       final p = origin + WorldMapData.project(cur.lon!, cur.lat!) * unit;
+      canvas.drawRect(Rect.fromCenter(center: p, width: 8 / s, height: 8 / s), Paint()..color = kAccent);
       canvas.drawRect(
-        Rect.fromCenter(center: p, width: 16 / s, height: 16 / s),
+        Rect.fromCenter(center: p, width: 20 / s, height: 20 / s),
         Paint()
           ..style = PaintingStyle.stroke
-          ..color = ink
+          ..color = kAccent
           ..strokeWidth = 2 / s,
       );
     }
