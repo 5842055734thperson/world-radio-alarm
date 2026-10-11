@@ -24,7 +24,7 @@ class StationLogo extends StatelessWidget {
     final initials = Center(
       child: Text(
         _initials(station?.name ?? ''),
-        style: mono(context, size: size * 0.28, weight: FontWeight.w700),
+        style: label(context, size: size * 0.28, weight: FontWeight.w700),
       ),
     );
     final url = station?.favicon ?? '';
@@ -105,7 +105,7 @@ class StationTile extends StatelessWidget {
                         upper(stationMeta(station)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: mono(context, size: 11, color: scheme.onSurfaceVariant),
+                        style: label(context, size: 11, color: scheme.onSurfaceVariant),
                       ),
                     ],
                   ),

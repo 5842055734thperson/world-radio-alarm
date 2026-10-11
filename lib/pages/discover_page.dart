@@ -177,7 +177,7 @@ class _StationSearchState extends State<StationSearch> {
               Expanded(
                 child: TextField(
                   controller: _controller,
-                  style: mono(context, size: 15),
+                  style: label(context, size: 15),
                   decoration: InputDecoration(
                     hintText: 'STATION NAME',
                     prefixIcon: const Icon(Icons.search),
@@ -243,7 +243,7 @@ class _StationSearchState extends State<StationSearch> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(upper(_error ?? 'No stations found.'),
-                  textAlign: TextAlign.center, style: mono(context, size: 13)),
+                  textAlign: TextAlign.center, style: label(context, size: 13)),
               const SizedBox(height: 16),
               if (_error != null) BrutBox(onTap: _reload, inverted: true, child: const Text('RETRY')),
             ],
@@ -320,7 +320,7 @@ class _CountryPickerState extends State<_CountryPicker> {
                 Text(flag, style: const TextStyle(fontSize: 20)),
                 const SizedBox(width: 12),
                 Expanded(child: Text(upper(name), style: const TextStyle(fontWeight: FontWeight.w700))),
-                Text(trailing, style: mono(context, size: 11, color: scheme.onSurfaceVariant)),
+                Text(trailing, style: label(context, size: 11, color: scheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -342,7 +342,7 @@ class _CountryPickerState extends State<_CountryPicker> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: TextField(
-                style: mono(context, size: 15),
+                style: label(context, size: 15),
                 decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'SEARCH (TURKEY, GERMANY…)'),
                 onChanged: (v) => setState(() => _filter = v),
               ),
@@ -352,7 +352,7 @@ class _CountryPickerState extends State<_CountryPicker> {
               child: list == null
                   ? Center(
                       child: _failed
-                          ? Text('COULD NOT LOAD COUNTRIES', style: mono(context))
+                          ? Text('COULD NOT LOAD COUNTRIES', style: label(context))
                           : const CircularProgressIndicator(strokeWidth: 2),
                     )
                   : ListView.builder(

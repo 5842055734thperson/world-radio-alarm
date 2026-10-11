@@ -252,10 +252,10 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
                     children: [
                       Text('DISCOVER', style: display(context, size: 30)),
                       const SizedBox(height: 6),
-                      Text('━━ SAME COUNTRY   ┅┅ ABROAD', style: mono(context, size: 10, spacing: 1)),
+                      Text('━━ SAME COUNTRY   ┅┅ ABROAD', style: label(context, size: 10, spacing: 1)),
                       const SizedBox(height: 2),
                       Text('TAP: PLAY + BRANCH · HOLD: FOLD',
-                          style: mono(context, size: 10, spacing: 1, color: scheme.onSurfaceVariant)),
+                          style: label(context, size: 10, spacing: 1, color: scheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -320,9 +320,9 @@ class _NodeBox extends StatelessWidget {
             Row(
               children: [
                 Text('${flagEmoji(s.countryCode)} ${s.countryCode}',
-                    style: mono(context, size: 10, weight: FontWeight.w700, color: fg)),
+                    style: label(context, size: 10, weight: FontWeight.w700, color: fg)),
                 const Spacer(),
-                Text(status, style: mono(context, size: 12, weight: FontWeight.w700, color: fg)),
+                Text(status, style: label(context, size: 12, weight: FontWeight.w700, color: fg)),
               ],
             ),
             const SizedBox(height: 2),
@@ -402,7 +402,7 @@ class _SeedPicker extends StatelessWidget {
               child: Text(
                 upper('Pick a starting station. Each tap branches out to related stations: '
                     'from the same country and from abroad.'),
-                style: mono(context, size: 12),
+                style: label(context, size: 12),
               ),
             ),
             if (current != null) ...[

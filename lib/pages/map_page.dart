@@ -187,7 +187,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                               (geoStations.stations.isEmpty
                                   ? 'Loading stations…'
                                   : '${geoStations.stations.length} stations · tap to listen')),
-                          style: mono(context, size: 11, spacing: 1),
+                          style: label(context, size: 11, spacing: 1),
                         ),
                       ),
                     ),
@@ -361,7 +361,7 @@ class _NearbySheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(c == null ? 'NEARBY' : '${flagEmoji(c.iso)}  ${c.iso}',
-                            style: mono(context, size: 12, weight: FontWeight.w700, spacing: 2)),
+                            style: label(context, size: 12, weight: FontWeight.w700, spacing: 2)),
                         const SizedBox(height: 4),
                         Text(upper(c?.name ?? 'This area'), style: display(context, size: 28)),
                       ],
@@ -399,7 +399,7 @@ class _NearbySheet extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Text(upper('No mapped stations here. Zoom in and tap a dot, '
                     'or open all stations of the country.'),
-                    style: mono(context, size: 12)),
+                    style: label(context, size: 12)),
               ),
           ],
         ),

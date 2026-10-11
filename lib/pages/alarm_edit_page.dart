@@ -107,13 +107,13 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
             child: Text(
               '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontFamily: kMono, fontSize: 96, fontWeight: FontWeight.w700, height: 1.1),
+              style: const TextStyle(fontFamily: kDigits, fontSize: 96, fontWeight: FontWeight.w700, height: 1.1),
             ),
           ),
           Text(
             upper(preview == null ? 'Tap the time to change it' : 'Rings ${untilText(preview)}'),
             textAlign: TextAlign.center,
-            style: mono(context, size: 12, color: scheme.onSurfaceVariant),
+            style: label(context, size: 12, color: scheme.onSurfaceVariant),
           ),
           const SectionLabel('Repeat'),
           Row(
@@ -136,7 +136,7 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
             upper(_days.isEmpty
                 ? 'No days selected: rings once'
                 : RadioAlarm(id: 0, hour: 0, minute: 0, days: _days.toList()).daysText),
-            style: mono(context, size: 11, color: scheme.onSurfaceVariant),
+            style: label(context, size: 11, color: scheme.onSurfaceVariant),
           ),
           const SectionLabel('Radio'),
           BrutBox(
@@ -161,7 +161,7 @@ class _AlarmEditPageState extends State<AlarmEditPage> {
           Text(
             upper('Without internet, or if the stream fails, the phone alarm tone plays. '
                 'Volume fades in over 30 seconds.'),
-            style: mono(context, size: 11, color: scheme.onSurfaceVariant),
+            style: label(context, size: 11, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 28),
           BrutBox(
@@ -230,7 +230,7 @@ class _StationPickerPageState extends State<_StationPickerPage> {
             child: _searchAll
                 ? StationSearch(onSelect: pick)
                 : mine.isEmpty
-                    ? Center(child: Text('LIBRARY IS EMPTY', style: mono(context)))
+                    ? Center(child: Text('LIBRARY IS EMPTY', style: label(context)))
                     : ListView(children: [for (final s in mine) StationTile(s, onTap: () => pick(s))]),
           ),
         ],

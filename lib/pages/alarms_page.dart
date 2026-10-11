@@ -44,7 +44,7 @@ class AlarmsPage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Text(
                 upper(next == null ? 'No alarms set' : 'Next: ${untilText(next)}'),
-                style: mono(context, size: 12, spacing: 1),
+                style: label(context, size: 12, spacing: 1),
               ),
             ),
             if (alarms.needsSetup) const _SetupCard(),
@@ -90,13 +90,13 @@ class _AlarmRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(alarm.timeText,
-                      style: TextStyle(fontFamily: kMono, fontSize: 52, fontWeight: FontWeight.w700, height: 1, color: color)),
+                      style: TextStyle(fontFamily: kDigits, fontSize: 52, fontWeight: FontWeight.w700, height: 1, color: color)),
                   const SizedBox(height: 6),
                   Text(
                     upper('${alarm.daysText} · ${alarm.station?.name ?? 'Alarm tone'}'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: mono(context, size: 11, color: color),
+                    style: label(context, size: 11, color: color),
                   ),
                 ],
               ),
@@ -120,7 +120,7 @@ class _SetupCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 10),
           child: Row(
             children: [
-              Expanded(child: Text(upper(text), style: mono(context, size: 12))),
+              Expanded(child: Text(upper(text), style: label(context, size: 12))),
               const SizedBox(width: 8),
               BrutBox(inverted: true, onTap: onPressed, child: Text(upper(button), style: const TextStyle(fontSize: 12))),
             ],

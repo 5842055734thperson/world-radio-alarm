@@ -34,7 +34,7 @@ class FavoritesPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     upper('No favorites yet. Tap ♡ next to a station.'),
-                    style: mono(context, size: 12),
+                    style: label(context, size: 12),
                   ),
                 ),
               )
@@ -64,12 +64,12 @@ class FavoritesPage extends StatelessWidget {
                   builder: (context, _) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('TIMESHIFT BUFFER', style: mono(context, size: 12, weight: FontWeight.w700, spacing: 1)),
+                      Text('TIMESHIFT BUFFER', style: label(context, size: 12, weight: FontWeight.w700, spacing: 1)),
                       const SizedBox(height: 4),
                       Text(
                         upper('Keeps the last minutes of the live stream so you can pause and rewind. '
                             'Uses up to ~30 MB of memory for 30 minutes at 128 kbps.'),
-                        style: mono(context, size: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        style: label(context, size: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 10),
                       Row(

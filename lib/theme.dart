@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Minimal brutalist look: pure black/white, square corners, hard 2px borders,
-/// Space Grotesk for titles and JetBrains Mono for data.
+/// Minimal brutalist look: pure black/white, square corners, hard 2px borders.
+/// Chillax (Indian Type Foundry, via Fontshare) for all text, JetBrains Mono
+/// only for clock digits.
 const kBorder = 2.0;
-const kSans = 'SpaceGrotesk';
-const kMono = 'JetBrainsMono';
+const kSans = 'Chillax';
+const kDigits = 'JetBrainsMono';
 
 ThemeData brutalTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
@@ -70,7 +71,7 @@ ThemeData brutalTheme(Brightness brightness) {
     dialogTheme: DialogThemeData(backgroundColor: bg, shape: square.copyWith(side: side)),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: fg,
-      contentTextStyle: TextStyle(fontFamily: kMono, color: bg, fontSize: 13),
+      contentTextStyle: TextStyle(fontFamily: kSans, color: bg, fontSize: 13),
       shape: square,
       behavior: SnackBarBehavior.floating,
     ),
@@ -79,7 +80,7 @@ ThemeData brutalTheme(Brightness brightness) {
         backgroundColor: fg,
         foregroundColor: bg,
         shape: square,
-        textStyle: const TextStyle(fontFamily: kMono, fontWeight: FontWeight.w700, letterSpacing: 1),
+        textStyle: const TextStyle(fontFamily: kSans, fontWeight: FontWeight.w700, letterSpacing: 1),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -87,7 +88,7 @@ ThemeData brutalTheme(Brightness brightness) {
         foregroundColor: fg,
         side: side,
         shape: square,
-        textStyle: const TextStyle(fontFamily: kMono, fontWeight: FontWeight.w700, letterSpacing: 1),
+        textStyle: const TextStyle(fontFamily: kSans, fontWeight: FontWeight.w700, letterSpacing: 1),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -102,7 +103,7 @@ ThemeData brutalTheme(Brightness brightness) {
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: side),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.zero, borderSide: side.copyWith(width: 3)),
-      hintStyle: TextStyle(fontFamily: kMono, color: muted),
+      hintStyle: TextStyle(fontFamily: kSans, color: muted),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
     ),
     textSelectionTheme: TextSelectionThemeData(cursorColor: fg, selectionHandleColor: fg),
@@ -119,17 +120,17 @@ ThemeData brutalTheme(Brightness brightness) {
           (s) => s.contains(WidgetState.selected) ? bg : fg),
       dialTextColor: WidgetStateColor.resolveWith(
           (s) => s.contains(WidgetState.selected) ? bg : fg),
-      hourMinuteTextStyle: const TextStyle(fontFamily: kMono, fontSize: 48),
-      helpTextStyle: const TextStyle(fontFamily: kMono, letterSpacing: 1),
+      hourMinuteTextStyle: const TextStyle(fontFamily: kDigits, fontSize: 48),
+      helpTextStyle: const TextStyle(fontFamily: kSans, letterSpacing: 1),
     ),
     popupMenuTheme: PopupMenuThemeData(
       color: bg,
       shape: square.copyWith(side: side),
-      textStyle: TextStyle(fontFamily: kMono, color: fg),
+      textStyle: TextStyle(fontFamily: kSans, color: fg),
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(color: fg),
-      textStyle: TextStyle(fontFamily: kMono, color: bg, fontSize: 12),
+      textStyle: TextStyle(fontFamily: kSans, color: bg, fontSize: 12),
     ),
     scrollbarTheme: ScrollbarThemeData(
       thumbColor: WidgetStatePropertyAll(fg),
@@ -138,12 +139,12 @@ ThemeData brutalTheme(Brightness brightness) {
   );
 }
 
-/// Monospaced data text ("TR · POP · 128 KBPS").
-TextStyle mono(BuildContext context,
+/// Small label / data text ("TR · POP · 128 KBPS").
+TextStyle label(BuildContext context,
     {double size = 12, FontWeight weight = FontWeight.w400, Color? color, double spacing = 0.5}) {
   final scheme = Theme.of(context).colorScheme;
   return TextStyle(
-    fontFamily: kMono,
+    fontFamily: kSans,
     fontSize: size,
     fontWeight: weight,
     letterSpacing: spacing,

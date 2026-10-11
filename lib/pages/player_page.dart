@@ -56,7 +56,7 @@ class PlayerPage extends StatelessWidget {
                                 : player.isLive
                                     ? '● LIVE'
                                     : '◀ ${formatBehind(player.behindSeconds)}',
-                            style: mono(context, size: 12, weight: FontWeight.w700, spacing: 2)),
+                            style: label(context, size: 12, weight: FontWeight.w700, spacing: 2)),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -72,13 +72,13 @@ class PlayerPage extends StatelessWidget {
                     Text(upper([s.country, stationMeta(s)].where((e) => e.isNotEmpty).join(' · ')),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: mono(context, size: 11, color: scheme.onSurfaceVariant)),
+                        style: label(context, size: 11, color: scheme.onSurfaceVariant)),
                     const SizedBox(height: 12),
                     if (player.error != null)
-                      Text(upper(player.error!), style: mono(context, size: 12, color: scheme.error))
+                      Text(upper(player.error!), style: label(context, size: 12, color: scheme.error))
                     else if (player.nowPlaying != null)
                       Text('NOW: ${upper(player.nowPlaying!)}',
-                          maxLines: 2, overflow: TextOverflow.ellipsis, style: mono(context, size: 13)),
+                          maxLines: 2, overflow: TextOverflow.ellipsis, style: label(context, size: 13)),
                     const Spacer(),
                     if (player.canTimeshift) ...[
                       const TimeshiftBar(),
@@ -138,7 +138,7 @@ class PlayerPage extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text(
                         'SLEEP TIMER · ${sleepAt.difference(DateTime.now()).inMinutes + 1} MIN',
-                        style: mono(context, size: 12, weight: FontWeight.w700),
+                        style: label(context, size: 12, weight: FontWeight.w700),
                       ),
                     ],
                   ],
@@ -211,10 +211,10 @@ class _TimeshiftBarState extends State<TimeshiftBar> {
         Row(
           children: [
             Text('TIMESHIFT · ${settings.timeshiftMinutes} MIN',
-                style: mono(context, size: 11, weight: FontWeight.w700, spacing: 1)),
+                style: label(context, size: 11, weight: FontWeight.w700, spacing: 1)),
             const Spacer(),
             Text(behind < 8 ? 'LIVE' : formatBehind(behind),
-                style: mono(context, size: 11, weight: FontWeight.w700, spacing: 1)),
+                style: label(context, size: 11, weight: FontWeight.w700, spacing: 1)),
           ],
         ),
         const SizedBox(height: 8),
@@ -246,9 +246,9 @@ class _TimeshiftBarState extends State<TimeshiftBar> {
         const SizedBox(height: 4),
         Row(
           children: [
-            Text('−${settings.timeshiftMinutes}:00', style: mono(context, size: 10, color: scheme.onSurfaceVariant)),
+            Text('−${settings.timeshiftMinutes}:00', style: label(context, size: 10, color: scheme.onSurfaceVariant)),
             const Spacer(),
-            Text('NOW', style: mono(context, size: 10, color: scheme.onSurfaceVariant)),
+            Text('NOW', style: label(context, size: 10, color: scheme.onSurfaceVariant)),
           ],
         ),
         const SizedBox(height: 10),

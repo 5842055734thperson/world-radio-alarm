@@ -41,7 +41,7 @@ class BrutBox extends StatelessWidget {
       child: IconTheme.merge(
         data: IconThemeData(color: fg),
         child: DefaultTextStyle.merge(
-          style: TextStyle(color: fg, fontFamily: kMono, fontWeight: FontWeight.w700, letterSpacing: 1),
+          style: TextStyle(color: fg, fontFamily: kSans, fontWeight: FontWeight.w700, letterSpacing: 1),
           child: child,
         ),
       ),
@@ -140,7 +140,7 @@ class SectionLabel extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
         child: Row(
           children: [
-            Expanded(child: Text('— ${upper(text)}', style: mono(context, size: 12, weight: FontWeight.w700, spacing: 2))),
+            Expanded(child: Text('— ${upper(text)}', style: label(context, size: 12, weight: FontWeight.w700, spacing: 2))),
             ?trailing,
           ],
         ),

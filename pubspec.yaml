@@ -63,11 +63,17 @@ flutter:
     - assets/world.json
 
   fonts:
-    - family: SpaceGrotesk
+    # Chillax is downloaded from Fontshare at build time (see .github/workflows/build-apk.yml
+    # and tool/get_fonts.sh); its license does not allow redistributing the files.
+    - family: Chillax
       fonts:
-        - asset: assets/fonts/SpaceGrotesk-Medium.ttf
+        - asset: assets/fonts/Chillax-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Chillax-Medium.ttf
           weight: 500
-        - asset: assets/fonts/SpaceGrotesk-Bold.ttf
+        - asset: assets/fonts/Chillax-Semibold.ttf
+          weight: 600
+        - asset: assets/fonts/Chillax-Bold.ttf
           weight: 700
     - family: JetBrainsMono
       fonts:

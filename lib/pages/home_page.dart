@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                               const SizedBox(height: 4),
                               Text(
                                 _tabs[i].$2,
-                                style: mono(context,
+                                style: label(context,
                                     size: 10,
                                     weight: FontWeight.w700,
                                     spacing: 1,
@@ -154,7 +154,7 @@ class MiniPlayer extends StatelessWidget {
                           upper(status),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: mono(context,
+                          style: label(context,
                               size: 11, color: player.error != null ? scheme.error : scheme.onSurfaceVariant),
                         ),
                       ],

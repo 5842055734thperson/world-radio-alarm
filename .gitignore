@@ -49,3 +49,6 @@ app.*.map.json
 
 # Locally downloaded release APKs
 /dist/
+
+# Chillax is fetched at build time (license forbids redistribution)
+assets/fonts/Chillax-*

@@ -6,7 +6,7 @@ wake up to a station of your choice. The UI is in English.
 ## Design
 
 Minimal, brutalist, monochrome: pure black on white (light) or white on black (dark),
-square corners, 2px borders, Space Grotesk titles and JetBrains Mono data text.
+square corners, 2px borders, set in Chillax (JetBrains Mono for clock digits).
 Theme follows the system or can be forced light/dark (the ◐ button).
 
 ## Features
@@ -79,12 +79,16 @@ The alarm engine is native so it works while the Flutter UI is closed.
 ## Development
 
 ```bash
+tool/get_fonts.sh   # downloads Chillax into assets/fonts/
 flutter pub get
 flutter analyze && flutter test
 flutter build apk --release
 ```
 
-Fonts: Space Grotesk and JetBrains Mono (SIL Open Font License, see `assets/fonts/`).
+Fonts: Chillax by Indian Type Foundry (ITF Free Font License, from fontshare.com) is
+downloaded at build time by `tool/get_fonts.sh` and embedded in the APK, but not committed,
+since the license does not allow redistributing the font files. Run the script once before
+building locally. JetBrains Mono (SIL Open Font License) is in `assets/fonts/`.
 Map data: Natural Earth (public domain).
 
 Roadmap: Windows desktop build, iPadOS (needs a Mac or cloud build), station map.
