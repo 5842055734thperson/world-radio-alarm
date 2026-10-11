@@ -19,6 +19,12 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 - **~50,000 stations** from the free [Radio Browser](https://www.radio-browser.info)
   directory: internet radios and the online streams of terrestrial (FM/AM) stations.
+- **Discovery tree ("Ağ" tab)**, inspired by everynoise.com: start from a station; each tap
+  plays a station and branches out to related ones — three from the same country (solid
+  lines) and three from other countries (dashed lines). Long-press a box to fold its
+  branches. Relatedness is estimated from shared genre tags, language and popularity
+  (Radio Browser has no co-listening data). Long-press any station in a list, or use
+  "Benzerlerini ağda keşfet" in the player, to start a tree from it.
 - Search by name, filter by **country** (Türkiye by default, or the whole world) and **genre**.
 - Background playback with notification / lock-screen controls, current song title (ICY metadata).
 - **Favorites** (drag to reorder) and recently played stations.
@@ -53,6 +59,7 @@ If the cache is ever evicted, the next APK gets a new key and the old app must b
 | `lib/services/alarms.dart` | Method-channel bridge to the native alarm engine |
 | `lib/theme.dart`, `lib/widgets/brut.dart` | Brutalist theme and building blocks |
 | `lib/map/world_map_data.dart`, `lib/pages/map_page.dart` | World map: outlines, projection, station dots, tap handling |
+| `lib/services/similar.dart`, `lib/pages/graph_page.dart` | Related-station scoring and the discovery tree |
 | `lib/services/geo_stations.dart` | Popular stations with coordinates (cached 3 days) |
 | `lib/pages/` | Map, search, library, alarms, alarm editor, full-screen player |
 | `assets/world.json` | Coastlines, borders and country shapes, built by `tool/build_map.py` from Natural Earth 1:50m |

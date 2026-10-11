@@ -10,6 +10,7 @@ class Station {
     this.tags = '',
     this.codec = '',
     this.bitrate = 0,
+    this.language = '',
     this.lat,
     this.lon,
   });
@@ -23,6 +24,9 @@ class Station {
   final String tags;
   final String codec;
   final int bitrate;
+
+  /// Comma-separated languages, e.g. "turkish,english".
+  final String language;
 
   /// Station location, when Radio Browser knows it (used by the map).
   final double? lat;
@@ -42,6 +46,7 @@ class Station {
       tags: (j['tags'] ?? '').toString(),
       codec: (j['codec'] ?? '').toString(),
       bitrate: (j['bitrate'] is int) ? j['bitrate'] as int : 0,
+      language: (j['language'] ?? '').toString(),
       lat: (j['geo_lat'] as num?)?.toDouble(),
       lon: (j['geo_long'] as num?)?.toDouble(),
     );
@@ -57,6 +62,7 @@ class Station {
         tags: j['tags'] as String? ?? '',
         codec: j['codec'] as String? ?? '',
         bitrate: j['bitrate'] as int? ?? 0,
+        language: j['language'] as String? ?? '',
         lat: (j['lat'] as num?)?.toDouble(),
         lon: (j['lon'] as num?)?.toDouble(),
       );
@@ -71,9 +77,25 @@ class Station {
         'tags': tags,
         'codec': codec,
         'bitrate': bitrate,
+        if (language.isNotEmpty) 'language': language,
         if (lat != null) 'lat': lat,
         if (lon != null) 'lon': lon,
       };
+
+  /// Lower-case, trimmed genre tags.
+  Set<String> get tagSet => tags
+      .toLowerCase()
+      .split(',')
+      .map((t) => t.trim())
+      .where((t) => t.isNotEmpty)
+      .toSet();
+
+  Set<String> get languageSet => language
+      .toLowerCase()
+      .split(',')
+      .map((t) => t.trim())
+      .where((t) => t.isNotEmpty)
+      .toSet();
 
   /// Short "Country · tag, tag · 128 kbps" description line.
   String get subtitle {

@@ -7,6 +7,7 @@ import '../widgets/station_widgets.dart';
 import 'alarms_page.dart';
 import 'discover_page.dart';
 import 'favorites_page.dart';
+import 'graph_page.dart';
 import 'map_page.dart';
 import 'player_page.dart';
 
@@ -18,10 +19,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  int _tab = 0;
-
   static const _tabs = [
     (Icons.public, 'HARİTA'),
+    (Icons.hub_outlined, 'AĞ'),
     (Icons.search, 'ARA'),
     (Icons.favorite_border, 'KİTAPLIK'),
     (Icons.alarm, 'ALARM'),
@@ -31,13 +31,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    homeTab.addListener(_onTab);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    homeTab.removeListener(_onTab);
     super.dispose();
   }
+
+  void _onTab() => setState(() {});
+
+  int get _tab => homeTab.value;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -53,7 +59,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         bottom: false,
         child: IndexedStack(
           index: _tab,
-          children: const [MapPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
+          children: const [MapPage(), GraphPage(), DiscoverPage(), FavoritesPage(), AlarmsPage()],
         ),
       ),
       bottomNavigationBar: Column(
@@ -72,7 +78,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   for (var i = 0; i < _tabs.length; i++)
                     Expanded(
                       child: InkWell(
-                        onTap: () => setState(() => _tab = i),
+                        onTap: () => homeTab.value = i,
                         child: Container(
                           height: 60,
                           color: i == _tab ? scheme.onSurface : null,

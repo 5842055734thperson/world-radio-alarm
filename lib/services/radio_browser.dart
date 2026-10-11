@@ -53,6 +53,7 @@ class RadioBrowser {
     String name = '',
     String countryCode = '',
     String tag = '',
+    String language = '',
     int offset = 0,
     int limit = 50,
   }) async {
@@ -66,6 +67,7 @@ class RadioBrowser {
     if (name.isNotEmpty) q['name'] = name;
     if (countryCode.isNotEmpty) q['countrycode'] = countryCode;
     if (tag.isNotEmpty) q['tag'] = tag;
+    if (language.isNotEmpty) q['language'] = language;
     final data = await _get('/json/stations/search', q) as List;
     return data
         .map((e) => Station.fromApi((e as Map).cast<String, dynamic>()))

@@ -69,6 +69,8 @@ class StationTile extends StatelessWidget {
         final fav = favorites.contains(station);
         return InkWell(
           onTap: onTap ?? () => player.play(station),
+          // Long press: open the discovery tree from this station.
+          onLongPress: () => exploreFrom(station),
           child: Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
             decoration: BoxDecoration(

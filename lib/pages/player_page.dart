@@ -109,6 +109,22 @@ class PlayerPage extends StatelessWidget {
                         _SleepButton(sleepAt: sleepAt),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    BrutBox(
+                      height: 52,
+                      onTap: () {
+                        Navigator.pop(context);
+                        exploreFrom(s);
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.hub_outlined, size: 20),
+                          SizedBox(width: 8),
+                          Text('BENZERLERİNİ AĞDA KEŞFET →'),
+                        ],
+                      ),
+                    ),
                     if (sleepAt != null) ...[
                       const SizedBox(height: 10),
                       Text(
