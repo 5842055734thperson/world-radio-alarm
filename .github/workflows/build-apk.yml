@@ -64,6 +64,16 @@ jobs:
           flutter build apk --release --target-platform android-arm64 --build-number=${{ github.run_number }} --build-name=1.0.${{ github.run_number }}
           cp build/app/outputs/flutter-apk/app-release.apk WorldRadio-arm64.apk
 
+      # Kept even if publishing the release fails.
+      - name: Upload APKs as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WorldRadio-1.0.${{ github.run_number }}
+          path: |
+            WorldRadio.apk
+            WorldRadio-arm64.apk
+          retention-days: 30
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
