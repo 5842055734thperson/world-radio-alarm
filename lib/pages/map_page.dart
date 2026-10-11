@@ -8,6 +8,7 @@ import '../map/world_map_data.dart';
 import '../models/station.dart';
 import '../theme.dart';
 import '../widgets/brut.dart';
+import '../widgets/settings_panel.dart';
 import '../widgets/station_widgets.dart';
 import 'discover_page.dart';
 
@@ -61,7 +62,7 @@ class _MapPageState extends State<MapPage> {
   double get _scale => _tc.value.getMaxScaleOnAxis();
 
   /// Starting view: Europe, Africa and western Asia — coastlines only.
-  Matrix4 _homeMatrix() => _matrixFor(WorldMapData.project(22, 28), 1.9);
+  Matrix4 _homeMatrix() => _matrixFor(WorldMapData.project(22, 36), 2.0);
 
   Matrix4 _matrixFor(Offset mapCenter, double scale) {
     final c = _toChild(mapCenter);
@@ -162,7 +163,7 @@ class _MapPageState extends State<MapPage> {
         Positioned(
           left: 16,
           right: 16,
-          top: 12,
+          top: 16,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -198,6 +199,7 @@ class _MapPageState extends State<MapPage> {
                   ],
                 ),
               ),
+              const SettingsButton(),
             ],
           ),
         ),

@@ -48,14 +48,30 @@ class TimeshiftBuffer {
   int get liveOffset => _total;
   int _total = 0;
 
+  /// Bytes per second of audio. The declared bitrate is often wrong, so after
+  /// a while the rate measured past the connect burst takes over.
   double get byteRate {
-    final d = _declaredByteRate;
-    if (d != null) return d;
-    final started = _startedAt;
-    if (started == null) return 16000;
-    final secs = DateTime.now().difference(started).inMilliseconds / 1000;
-    // Early on the server's connect burst inflates the measured rate.
-    return secs < 8 ? 16000 : math.max(4000.0, _total / secs);
+    final measured = _measuredRate();
+    if (measured != null) return measured;
+    return _declaredByteRate ?? 16000;
+  }
+
+  // Measurement starts 10 s after connecting, to skip the server's burst.
+  DateTime? _rateFrom;
+  int _rateFromBytes = 0;
+  double? _rateCache;
+  DateTime? _rateCacheAt;
+
+  double? _measuredRate() {
+    final from = _rateFrom;
+    if (from == null) return null;
+    final now = DateTime.now();
+    if (_rateCacheAt != null && now.difference(_rateCacheAt!) < const Duration(seconds: 5)) return _rateCache;
+    final secs = now.difference(from).inMilliseconds / 1000;
+    if (secs < 30) return null;
+    _rateCache = math.max(2000.0, (_total - _rateFromBytes) / secs);
+    _rateCacheAt = now;
+    return _rateCache;
   }
 
   /// Seconds of audio currently buffered.
@@ -167,6 +183,11 @@ class TimeshiftBuffer {
     final bytes = Uint8List.fromList(data.sublist(from, to));
     _chunks.add(_Chunk(_total, bytes));
     _total += bytes.length;
+    final started = _startedAt;
+    if (_rateFrom == null && started != null && DateTime.now().difference(started) > const Duration(seconds: 10)) {
+      _rateFrom = DateTime.now();
+      _rateFromBytes = _total;
+    }
     final maxBuffered = math.min(maxBytes.toDouble(), byteRate * window.inSeconds);
     while (_chunks.length > 1 && _total - _chunks.first.start - _chunks.first.data.length > maxBuffered) {
       _chunks.removeAt(0);

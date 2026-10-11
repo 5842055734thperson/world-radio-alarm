@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../widgets/brut.dart';
-import '../widgets/settings_panel.dart';
 import '../widgets/station_widgets.dart';
 import 'alarms_page.dart';
 import 'discover_page.dart';
@@ -56,15 +55,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: Stack(
-          children: [
-            IndexedStack(
-              index: _tab,
-              children: const [MapPage(), DiscoverHub(), DiscoverPage(), AlarmsPage()],
-            ),
-            // Settings float in the top-right corner of every tab.
-            const Positioned(top: 12, right: 16, child: SettingsButton()),
-          ],
+        child: IndexedStack(
+          index: _tab,
+          children: const [MapPage(), DiscoverHub(), DiscoverPage(), AlarmsPage()],
         ),
       ),
       bottomNavigationBar: Column(

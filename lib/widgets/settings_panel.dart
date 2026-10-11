@@ -6,12 +6,14 @@ import 'brut.dart';
 
 /// Gear button for the top-right corner; opens [SettingsPanel] floating there.
 class SettingsButton extends StatelessWidget {
-  const SettingsButton({super.key});
+  const SettingsButton({super.key, this.size = 44});
+
+  final double size;
 
   @override
   Widget build(BuildContext context) => BrutIconButton(
         Icons.tune,
-        size: 44,
+        size: size,
         tooltip: 'Settings',
         onTap: () => showGeneralDialog<void>(
           context: context,

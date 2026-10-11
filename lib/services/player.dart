@@ -39,6 +39,11 @@ class RadioPlayer extends ChangeNotifier {
   int _generation = 0; // guards against overlapping play() calls
   Timer? _ticker;
   Timer? _pausedTooLong;
+  int _seekGeneration = 0;
+
+  /// Lag (seconds) between the buffer's live edge and playback when we are
+  /// "live". Servers send a burst of older audio on connect, so this is not 0.
+  double _liveLag = 0;
 
   /// True when the current station is recorded and can be rewound.
   bool get canTimeshift => _buffer != null && !_buffer!.stopped;
@@ -46,13 +51,19 @@ class RadioPlayer extends ChangeNotifier {
   /// Seconds of audio that can be rewound.
   double get bufferedSeconds => canTimeshift ? _buffer!.bufferedSeconds : 0;
 
+  /// Seconds between the buffer's live edge and what is being played.
+  double get _rawLag {
+    final b = _buffer;
+    if (b == null) return 0;
+    final playedBytes = _player.position.inMilliseconds / 1000 * b.byteRate;
+    return (b.liveOffset - _sourceStart - playedBytes) / b.byteRate;
+  }
+
   /// How far behind the live broadcast playback is, in seconds.
   double get behindSeconds {
     final b = _buffer;
     if (b == null) return 0;
-    final playedBytes = _player.position.inMilliseconds / 1000 * b.byteRate;
-    final behind = (b.liveOffset - _sourceStart - playedBytes) / b.byteRate;
-    return behind.clamp(0.0, b.bufferedSeconds);
+    return (_rawLag - _liveLag).clamp(0.0, b.bufferedSeconds);
   }
 
   bool get isLive => behindSeconds < 8;
@@ -122,6 +133,8 @@ class RadioPlayer extends ChangeNotifier {
         _buffer = buffer;
         _sourceStart = buffer.firstOffset;
         await _player.setAudioSource(TimeshiftSource(buffer, _sourceStart, tag: _mediaItem(s)));
+        // What we start with counts as "live", connect burst included.
+        _liveLag = math.max(0, _rawLag);
         _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
         unawaited(_player.play());
       } else {
@@ -181,19 +194,27 @@ class RadioPlayer extends ChangeNotifier {
     final b = _buffer;
     final s = station;
     if (b == null || s == null || b.stopped) return;
-    // Start a few seconds behind the edge so the player has data to buffer.
-    final secs = seconds.clamp(4.0, math.max(4.0, b.bufferedSeconds));
-    final target = (b.liveOffset - secs * b.byteRate).round().clamp(b.firstOffset, b.liveOffset);
-    _sourceStart = target;
+    final gen = ++_seekGeneration;
+    // Keep at least a few seconds of data ahead so the player can buffer.
+    final lagBytes = (seconds.clamp(0.0, b.bufferedSeconds) + math.max(_liveLag, 3.0)) * b.byteRate;
+    final target = (b.liveOffset - lagBytes).round().clamp(b.firstOffset, b.liveOffset);
     _pausedTooLong?.cancel();
-    await _player.setAudioSource(TimeshiftSource(b, target, tag: _mediaItem(s)));
-    unawaited(_player.play());
+    try {
+      // A fresh source flushes the player's read-ahead buffer.
+      await _player.stop();
+      if (gen != _seekGeneration) return;
+      _sourceStart = target;
+      await _player.setAudioSource(TimeshiftSource(b, target, tag: _mediaItem(s)));
+      if (gen != _seekGeneration) return;
+      unawaited(_player.play());
+      error = null;
+    } catch (e) {
+      debugPrint('timeshift seek failed: $e');
+      if (gen == _seekGeneration) error = 'Could not rewind this station.';
+    }
     _tick();
+    notifyListeners();
   }
-
-  Future<void> skip(double deltaSeconds) => seekBehind(behindSeconds - deltaSeconds);
-
-  Future<void> goLive() => seekBehind(0);
 
   Future<void> stop() async {
     _dropBuffer();

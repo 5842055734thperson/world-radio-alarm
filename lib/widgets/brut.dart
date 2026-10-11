@@ -161,15 +161,31 @@ class PageTitle extends StatelessWidget {
   final Widget? trailing;
 
   @override
+  Widget build(BuildContext context) => HeaderRow(
+        children: [
+          Expanded(child: Text(upper(text), style: display(context, size: 40))),
+          ?trailing,
+        ],
+      );
+}
+
+/// Shared page header: same insets and height on every tab.
+class HeaderRow extends StatelessWidget {
+  const HeaderRow({super.key, required this.children, this.padding = const EdgeInsets.fromLTRB(16, 16, 16, 8)});
+
+  static const height = 44.0;
+
+  final List<Widget> children;
+  final EdgeInsets padding;
+
+  @override
   Widget build(BuildContext context) => Padding(
-        // Right padding leaves room for the floating settings button.
-        padding: const EdgeInsets.fromLTRB(16, 16, 72, 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(child: Text(upper(text), style: display(context, size: 40))),
-            ?trailing,
-          ],
+        padding: padding,
+        child: SizedBox(
+          height: height,
+          child: Row(
+            children: children,
+          ),
         ),
       );
 }

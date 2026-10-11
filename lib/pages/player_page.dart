@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../widgets/brut.dart';
+import '../widgets/settings_panel.dart';
 import '../widgets/station_widgets.dart';
 
 void showPlayer(BuildContext context) {
@@ -61,6 +62,8 @@ class PlayerPage extends StatelessWidget {
                                 weight: FontWeight.w700,
                                 spacing: 2,
                                 color: player.playing && player.isLive ? kAccent : null)),
+                        const SizedBox(width: 12),
+                        const SettingsButton(size: 40),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -253,22 +256,6 @@ class _TimeshiftBarState extends State<TimeshiftBar> {
             Text('−${settings.timeshiftMinutes}:00', style: label(context, size: 10, color: scheme.onSurfaceVariant)),
             const Spacer(),
             Text('NOW', style: label(context, size: 10, color: scheme.onSurfaceVariant)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(child: BrutBox(onTap: () => player.skip(-30), child: const Text('−30S'))),
-            const SizedBox(width: 8),
-            Expanded(child: BrutBox(onTap: () => player.skip(30), child: const Text('+30S'))),
-            const SizedBox(width: 8),
-            Expanded(
-              child: BrutBox(
-                accent: player.isLive && player.playing,
-                onTap: player.goLive,
-                child: const Text('● LIVE'),
-              ),
-            ),
           ],
         ),
       ],

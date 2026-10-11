@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:world_radio/map/world_map_data.dart';
 import 'package:world_radio/theme.dart';
@@ -14,15 +12,16 @@ void main() {
     expect(map.countryAt(WorldMapData.project(-30.0, 30.0)), isNull); // Atlantic
   });
 
-  test('Equal Earth matches the published reference values', () {
-    // Šavrič et al. 2018: on the unit sphere the map is 2 * 2.7066 wide, 2 * 1.3173 tall.
-    final edge = EqualEarth.project(math.pi, 0);
-    final pole = EqualEarth.project(0, math.pi / 2);
-    expect(edge.dx, closeTo(2.7066, 1e-3));
-    expect(pole.dy, closeTo(1.3173, 1e-3));
-    // map units start at the top-left corner
-    expect(WorldMapData.project(-180, 0).dx, closeTo(0, 1e-9));
-    expect(WorldMapData.project(0, 90).dy, closeTo(0, 1e-9));
+  test('Mercator projection', () {
+    // equator is symmetric, poles are stretched
+    expect(Mercator.y(0), closeTo(0, 1e-9));
+    expect(Mercator.y(45), closeTo(-Mercator.y(-45), 1e-9));
+    expect(Mercator.y(60), greaterThan(60));
+    // map units start at the top-left corner and longitude is linear
+    expect(WorldMapData.project(-180, WorldMapData.maxLat).dx, closeTo(0, 1e-9));
+    expect(WorldMapData.project(-180, WorldMapData.maxLat).dy, closeTo(0, 1e-9));
+    expect(WorldMapData.project(0, 0).dx, 180);
+    expect(WorldMapData.project(10, 0).dx - WorldMapData.project(0, 0).dx, closeTo(10, 1e-9));
   });
 
   test('label upper case', () {

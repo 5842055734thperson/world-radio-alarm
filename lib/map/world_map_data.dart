@@ -6,10 +6,10 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 
 /// World map from assets/world.json (Natural Earth, public domain) in the
-/// Equal Earth projection (Šavrič, Patterson & Jenny 2018), an equal-area
-/// alternative to Mercator that keeps continents at their true relative size.
+/// Mercator projection, which tiles seamlessly when the map repeats sideways.
+/// Latitudes are cut at [minLat] (Antarctica is left out) and [maxLat].
 ///
-/// Map units: x in [0, width], y in [0, height], origin top-left.
+/// Map units: degrees of longitude; x in [0, width], y in [0, height], origin top-left.
 class WorldMapData {
   WorldMapData._(this.land, this.borders, this.countries);
 
@@ -22,10 +22,11 @@ class WorldMapData {
   /// Country shapes for hit testing only (projected).
   final List<MapCountry> countries;
 
-  static final double _xMax = EqualEarth.project(math.pi, 0).dx;
-  static final double _yMax = EqualEarth.project(0, math.pi / 2).dy;
-  static final double width = 2 * _xMax;
-  static final double height = 2 * _yMax;
+  static const maxLat = 84.0;
+  static const minLat = -58.0;
+  static const width = 360.0;
+  static final double _top = Mercator.y(maxLat);
+  static final double height = _top - Mercator.y(minLat);
 
   static WorldMapData? _cache;
 
@@ -52,9 +53,18 @@ class WorldMapData {
       if (close) path.close();
     }
 
+    // Lines entirely south of the cut (Antarctica) are skipped.
+    bool southOfMap(List r) {
+      for (var i = 1; i < r.length; i += 2) {
+        if ((r[i] as int) / 100.0 > minLat) return false;
+      }
+      return true;
+    }
+
     final land = Path();
     for (final r in raw['land'] as List) {
-      addTo(land, ring(r as List), close: false);
+      if (southOfMap(r as List)) continue;
+      addTo(land, ring(r), close: false);
     }
     final borders = Path();
     for (final r in raw['borders'] as List) {
@@ -69,10 +79,7 @@ class WorldMapData {
   }
 
   /// lon/lat (degrees) -> map units.
-  static Offset project(double lon, double lat) {
-    final p = EqualEarth.project(lon * math.pi / 180, lat * math.pi / 180);
-    return Offset(p.dx + _xMax, _yMax - p.dy);
-  }
+  static Offset project(double lon, double lat) => Offset(lon + 180, _top - Mercator.y(lat));
 
   /// Country containing a point given in map units, if any.
   MapCountry? countryAt(Offset p) {
@@ -83,18 +90,13 @@ class WorldMapData {
   }
 }
 
-/// Equal Earth projection on the unit sphere.
-abstract final class EqualEarth {
-  static const _a1 = 1.340264, _a2 = -0.081106, _a3 = 0.000893, _a4 = 0.003796;
-  static final _m = math.sqrt(3) / 2;
-
-  /// (lambda, phi) in radians -> (x, y), y pointing north.
-  static Offset project(double lambda, double phi) {
-    final t = math.asin(_m * math.sin(phi));
-    final t2 = t * t, t6 = t2 * t2 * t2;
-    final x = lambda * math.cos(t) / (_m * (_a1 + 3 * _a2 * t2 + t6 * (7 * _a3 + 9 * _a4 * t2)));
-    final y = t * (_a1 + _a2 * t2 + t6 * (_a3 + _a4 * t2));
-    return Offset(x, y);
+/// Spherical Mercator, scaled so one unit of y equals one degree of longitude
+/// at the equator.
+abstract final class Mercator {
+  /// Northing of [lat] (degrees), clamped to ±85° where the projection explodes.
+  static double y(double lat) {
+    final phi = lat.clamp(-85.0, 85.0) * math.pi / 180;
+    return math.log(math.tan(math.pi / 4 + phi / 2)) * 180 / math.pi;
   }
 }
 

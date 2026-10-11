@@ -39,26 +39,24 @@ class _DiscoverHubState extends State<DiscoverHub> {
     Widget tab(int i, String text) => Expanded(
           child: BrutBox(
             inverted: _view == i,
+            height: HeaderRow.height,
             onTap: () => setState(() => _view = i),
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.zero,
             child: Text(text, style: const TextStyle(fontSize: 12)),
           ),
         );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 72, 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('DISCOVER', style: display(context, size: 30)),
-              const SizedBox(width: 12),
-              tab(0, 'TREE'),
-              const SizedBox(width: 6),
-              tab(1, 'LIBRARY'),
-            ],
-          ),
+        HeaderRow(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+          children: [
+            Text('DISCOVER', style: display(context, size: 30)),
+            const SizedBox(width: 12),
+            tab(0, 'TREE'),
+            const SizedBox(width: 6),
+            tab(1, 'LIBRARY'),
+          ],
         ),
         Expanded(
           child: IndexedStack(

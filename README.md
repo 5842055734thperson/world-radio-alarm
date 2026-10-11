@@ -11,8 +11,8 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 ## Features
 
-- **World map home screen**: a line-only world map in the equal-area **Equal Earth**
-  projection (no Mercator size distortion). The first view shows only land and sea;
+- **World map home screen**: a line-only world map in the **Mercator** projection, which
+  tiles seamlessly as the map repeats sideways. The first view shows only land and sea;
   political borders fade in as you zoom. Pinch to zoom, drag to pan; the map repeats
   endlessly to the left and right. Each square
   dot is a station; tap a dot to see the stations there, or tap a country to open all
@@ -31,8 +31,8 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 - Search by name, filter by **country** (Türkiye by default, or the whole world) and **genre**.
 - Background playback with notification / lock-screen controls, current song title (ICY metadata).
 - **Library** (under Discover): favorites (drag to reorder) and recently played stations.
-- **Settings** float in the top-right corner of every tab: theme (auto / light / dark) and
-  the timeshift buffer length.
+- **Settings** (button on the map and in the player) open a small floating panel: theme
+  (auto / light / dark) and the timeshift buffer length.
 - **Timeshift (rewind live radio)**: the live MP3/AAC stream is recorded into a rolling
   15- or 30-minute in-memory buffer (setting in Library; off is possible). Pause really
   pauses, the player shows how far behind live you are, and you can drag the rewind bar,
