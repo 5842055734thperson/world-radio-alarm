@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../models/radio_alarm.dart';
 
@@ -35,7 +34,8 @@ class Alarms extends ChangeNotifier {
           await _ch.invokeMethod<bool>('canScheduleExact') ?? true;
       ignoringBattery = await _ch.invokeMethod<bool>('isIgnoringBattery') ?? true;
       canFullScreen = await _ch.invokeMethod<bool>('canFullScreen') ?? true;
-      notificationsAllowed = await Permission.notification.isGranted;
+      notificationsAllowed =
+          await _ch.invokeMethod<bool>('notificationsAllowed') ?? true;
     } catch (e) {
       debugPrint('alarm refresh failed: $e');
     }
@@ -72,10 +72,10 @@ class Alarms extends ChangeNotifier {
   Future<void> test(RadioAlarm alarm) =>
       _ch.invokeMethod('testAlarm', jsonEncode(alarm.toJson()));
 
-  Future<void> requestNotifications() async {
-    await Permission.notification.request();
-    await refresh();
-  }
+  /// Shows the Android 13+ notification permission dialog. The result is
+  /// picked up by [refresh] when the app resumes after the dialog.
+  Future<void> requestNotifications() =>
+      _ch.invokeMethod('requestNotifications');
 
   Future<void> openExactAlarmSettings() =>
       _ch.invokeMethod('openExactAlarmSettings');
