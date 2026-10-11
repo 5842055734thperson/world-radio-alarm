@@ -3,8 +3,6 @@
 Android app (Flutter) to listen to radio stations from all over the world and
 wake up to a station of your choice. The UI is in Turkish.
 
-> Side project, kept on its own branch; not part of the bioinformatics vault.
-
 ## Features
 
 - **~50,000 stations** from the free [Radio Browser](https://www.radio-browser.info)
@@ -26,10 +24,10 @@ phones do not expose an FM tuner to apps.
 
 ## Install
 
-Every push to this branch builds a signed APK in GitHub Actions
-(`.github/workflows/world-radio-apk.yml`) and publishes it as a GitHub Release
+Every push to `main` builds a signed APK in GitHub Actions
+(`.github/workflows/build-apk.yml`) and publishes it as a GitHub Release
 (`radio-v1.0.N`). Open the latest release on the phone, download
-`DunyaRadyo.apk` and allow "install unknown apps" when Android asks.
+`DunyaRadyo-arm64.apk` (or the universal `DunyaRadyo.apk` for older 32-bit phones) and allow "install unknown apps" when Android asks.
 New versions install over the old one and keep favorites and alarms: the release
 signing key is generated on the first CI run and reused from the Actions cache (never committed).
 If the cache is ever evicted, the next APK gets a new key and the old app must be uninstalled first.
