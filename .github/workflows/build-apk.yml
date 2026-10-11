@@ -48,6 +48,18 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 20000 -dname "CN=World Radio Alarm"
           printf 'storeFile=signing/release.jks\nstorePassword=%s\nkeyAlias=radio\nkeyPassword=%s\n' "$PASS" "$PASS" > android/key.properties
 
+      # Offline station catalog: refreshed when Radio Browser is up, otherwise the
+      # last good snapshot comes back from the cache.
+      - name: Restore station snapshot
+        uses: actions/cache@v4
+        with:
+          path: assets/stations.json
+          key: station-snapshot-${{ github.run_id }}
+          restore-keys: station-snapshot-
+
+      - name: Update station snapshot
+        run: python3 tool/snapshot_stations.py
+
       - name: Download Chillax font (Fontshare)
         run: tool/get_fonts.sh
 

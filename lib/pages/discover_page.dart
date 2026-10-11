@@ -139,7 +139,7 @@ class _StationSearchState extends State<StationSearch> {
       });
     } catch (e) {
       if (id != _requestId || !mounted) return;
-      setState(() => _error = 'Check your internet connection.');
+      setState(() => _error = 'Radio directory unreachable. Check your connection or try again later.');
     } finally {
       if (id == _requestId && mounted) setState(() => _loading = false);
     }
@@ -227,6 +227,14 @@ class _StationSearchState extends State<StationSearch> {
             ),
           ),
         ),
+        if (api.offline)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              upper('Offline catalog · radio directory unreachable · ${api.catalogSize} stations'),
+              style: label(context, size: 10, weight: FontWeight.w700, spacing: 1),
+            ),
+          ),
         Divider(height: kBorder, thickness: kBorder, color: Theme.of(context).colorScheme.onSurface),
         Expanded(child: _buildList()),
       ],

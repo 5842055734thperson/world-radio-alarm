@@ -52,3 +52,6 @@ app.*.map.json
 
 # Chillax is fetched at build time (license forbids redistribution)
 assets/fonts/Chillax-*
+
+# Offline station catalog, generated at build time
+assets/stations.json

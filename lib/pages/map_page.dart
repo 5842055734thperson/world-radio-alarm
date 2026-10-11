@@ -190,7 +190,9 @@ class _MapPageState extends State<MapPage> {
                             geoStations.error ??
                                 (geoStations.stations.isEmpty
                                     ? 'Loading stations…'
-                                    : '${geoStations.stations.length} stations · tap to listen'),
+                                    : api.offline
+                                        ? '${geoStations.stations.length} stations · offline catalog'
+                                        : '${geoStations.stations.length} stations · tap to listen'),
                           ),
                           style: label(context, size: 11, spacing: 1),
                         ),

@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 
 /// World map from assets/world.json (Natural Earth, public domain) in the
 /// Mercator projection, which tiles seamlessly when the map repeats sideways.
-/// Latitudes are cut at [minLat] (Antarctica is left out) and [maxLat].
+/// Latitudes are cut at [minLat] and [maxLat]; Antarctica's coast (about
+/// 65–78°S) is shown, stretched as Mercator stretches everything near a pole.
 ///
 /// Map units: degrees of longitude; x in [0, width], y in [0, height], origin top-left.
 class WorldMapData {
@@ -23,7 +24,7 @@ class WorldMapData {
   final List<MapCountry> countries;
 
   static const maxLat = 84.0;
-  static const minLat = -58.0;
+  static const minLat = -80.0;
   static const width = 360.0;
   static final double _top = Mercator.y(maxLat);
   static final double height = _top - Mercator.y(minLat);
@@ -53,7 +54,7 @@ class WorldMapData {
       if (close) path.close();
     }
 
-    // Lines entirely south of the cut (Antarctica) are skipped.
+    // Lines entirely south of the cut are skipped.
     bool southOfMap(List r) {
       for (var i = 1; i < r.length; i += 2) {
         if ((r[i] as int) / 100.0 > minLat) return false;

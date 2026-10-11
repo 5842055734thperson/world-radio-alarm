@@ -61,6 +61,8 @@ flutter:
 
   assets:
     - assets/world.json
+    # Offline station catalog, generated at build time (tool/snapshot_stations.py).
+    - assets/stations.json
 
   fonts:
     # Chillax is downloaded from Fontshare at build time (see .github/workflows/build-apk.yml

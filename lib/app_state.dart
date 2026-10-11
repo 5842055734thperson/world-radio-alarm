@@ -31,7 +31,10 @@ void exploreFrom(Station s) {
 }
 
 Future<void> initAppState() async {
+  // Offline catalog for when the radio directory is down; loads in the background.
+  api.loadSnapshot();
   favorites = await Favorites.load();
+  api.addToCatalog([...favorites.stations, ...favorites.recent]);
   settings = await Settings.load();
   player = RadioPlayer(api, favorites, settings);
   await alarms.refresh();

@@ -11,8 +11,8 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 ## Features
 
-- **World map home screen**: a line-only world map in the **Mercator** projection, which
-  tiles seamlessly as the map repeats sideways. The first view shows only land and sea;
+- **World map home screen**: a line-only world map in the **Mercator** projection (down to
+  80°S, Antarctica included), which tiles seamlessly as the map repeats sideways. The first view shows only land and sea;
   political borders fade in as you zoom. Pinch to zoom, drag to pan; the map repeats
   endlessly to the left and right. Each square
   dot is a station; tap a dot to see the stations there, or tap a country to open all
@@ -51,6 +51,15 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 Stations that broadcast only over the air (no internet stream) cannot be played:
 phones do not expose an FM tuner to apps.
 
+## Offline catalog
+
+Radio Browser sometimes goes down. Every query then falls back to an offline catalog:
+the ~8,000 most popular stations, fetched at build time by `tool/snapshot_stations.py`
+into `assets/stations.json` (the last good snapshot is reused from the CI cache when the
+directory is unreachable during a build), plus the map stations cached on the device and
+the user's favorites. Search, the country list, the map and Discover keep working, and
+the UI says when it is showing the offline catalog.
+
 ## Install
 
 Every push to `main` builds a signed APK in GitHub Actions
@@ -84,7 +93,8 @@ The alarm engine is native so it works while the Flutter UI is closed.
 ## Development
 
 ```bash
-tool/get_fonts.sh   # downloads Chillax into assets/fonts/
+tool/get_fonts.sh                 # downloads Chillax into assets/fonts/
+python3 tool/snapshot_stations.py # offline station catalog (assets/stations.json)
 flutter pub get
 flutter analyze && flutter test
 flutter build apk --release

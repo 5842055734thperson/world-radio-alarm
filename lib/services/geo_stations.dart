@@ -44,8 +44,9 @@ class GeoStations extends ChangeNotifier {
         await file.writeAsString(jsonEncode(list.map((s) => s.toJson()).toList()));
       }
     } catch (e) {
-      if (stations.isEmpty) error = 'Could not load map stations.';
+      if (stations.isEmpty) error = 'Radio directory unreachable.';
     }
+    _api.addToCatalog(stations);
     loading = false;
     notifyListeners();
   }
