@@ -13,7 +13,8 @@ Theme follows the system or can be forced light/dark (the ◐ button).
 
 - **World map home screen**: a line-only world map in the equal-area **Equal Earth**
   projection (no Mercator size distortion). The first view shows only land and sea;
-  political borders fade in as you zoom. Pinch / +/- to zoom, drag to pan. Each square
+  political borders fade in as you zoom. Pinch to zoom, drag to pan; the map repeats
+  endlessly to the left and right. Each square
   dot is a station; tap a dot to see the stations there, or tap a country to open all
   of its stations.
 

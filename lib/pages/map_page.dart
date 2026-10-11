@@ -48,9 +48,12 @@ class _MapPageState extends State<MapPage> {
 
   // ---- geometry: map units (degrees) <-> viewport child pixels ----
 
-  double get _unit => _viewport.width / WorldMapData.width; // px per map unit at scale 1
-  Offset get _origin =>
-      Offset(0, (_viewport.height - WorldMapData.height * _unit) / 2); // map centered vertically
+  double get _unit =>
+      _viewport.width / WorldMapData.width; // px per map unit at scale 1
+  Offset get _origin => Offset(
+    0,
+    (_viewport.height - WorldMapData.height * _unit) / 2,
+  ); // map centered vertically
 
   Offset _toChild(Offset mapUnits) => _origin + mapUnits * _unit;
   Offset _toMap(Offset child) => (child - _origin) / _unit;
@@ -69,6 +72,12 @@ class _MapPageState extends State<MapPage> {
   }
 
   // ---- tapping ----
+
+  /// Folds a position on any repeated copy of the world back onto the base copy.
+  Offset _wrap(Offset childPos) {
+    final w = _viewport.width;
+    return w <= 0 ? childPos : Offset(childPos.dx % w, childPos.dy);
+  }
 
   void _onTap(Offset childPos) {
     final map = _map;
@@ -106,39 +115,48 @@ class _MapPageState extends State<MapPage> {
     return Stack(
       children: [
         Positioned.fill(
-          child: LayoutBuilder(builder: (context, c) {
-            _viewport = c.biggest;
-            if (!_placedInitialView && _viewport.width > 0) {
-              _placedInitialView = true;
-              _tc.value = _homeMatrix();
-            }
-            return InteractiveViewer(
-              transformationController: _tc,
-              minScale: _minScale,
-              maxScale: _maxScale,
-              boundaryMargin: EdgeInsets.symmetric(
-                  horizontal: _viewport.width * 0.2, vertical: _viewport.height * 0.5),
-              child: GestureDetector(
+          child: LayoutBuilder(
+            builder: (context, c) {
+              _viewport = c.biggest;
+              if (!_placedInitialView && _viewport.width > 0) {
+                _placedInitialView = true;
+                _tc.value = _homeMatrix();
+              }
+              // Taps are read outside the viewer so copies of the world beyond the
+              // child's bounds respond too.
+              return GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTapUp: (d) => _onTap(d.localPosition),
-                child: CustomPaint(
-                  size: _viewport,
-                  painter: _map == null
-                      ? null
-                      : _MapPainter(
-                          map: _map!,
-                          stations: geoStations,
-                          transform: _tc,
-                          origin: _origin,
-                          unit: _unit,
-                          ink: scheme.onSurface,
-                          selected: _selected,
-                          playing: player,
-                        ),
+                onTapUp: (d) => _onTap(_wrap(_tc.toScene(d.localPosition))),
+                child: InteractiveViewer(
+                  transformationController: _tc,
+                  minScale: _minScale,
+                  maxScale: _maxScale,
+                  // Endless sideways: the painter repeats the world to the left and
+                  // right. (InteractiveViewer can't mix infinite and finite margins,
+                  // so "endless" is a margin no one will ever pan through.)
+                  boundaryMargin: EdgeInsets.symmetric(
+                    horizontal: 1e7,
+                    vertical: _viewport.height * 0.5,
+                  ),
+                  child: CustomPaint(
+                    size: _viewport,
+                    painter: _map == null
+                        ? null
+                        : _MapPainter(
+                            map: _map!,
+                            stations: geoStations,
+                            transform: _tc,
+                            origin: _origin,
+                            unit: _unit,
+                            ink: scheme.onSurface,
+                            selected: _selected,
+                            playing: player,
+                          ),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ),
         // Header
         Positioned(
@@ -155,7 +173,10 @@ class _MapPageState extends State<MapPage> {
                     Container(
                       color: scheme.surface,
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text('WORLD\nRADIO', style: display(context, size: 30)),
+                      child: Text(
+                        'WORLD\nRADIO',
+                        style: display(context, size: 30),
+                      ),
                     ),
                     const SizedBox(height: 6),
                     ListenableBuilder(
@@ -164,10 +185,12 @@ class _MapPageState extends State<MapPage> {
                         color: scheme.surface,
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
-                          upper(geoStations.error ??
-                              (geoStations.stations.isEmpty
-                                  ? 'Loading stations…'
-                                  : '${geoStations.stations.length} stations · tap to listen')),
+                          upper(
+                            geoStations.error ??
+                                (geoStations.stations.isEmpty
+                                    ? 'Loading stations…'
+                                    : '${geoStations.stations.length} stations · tap to listen'),
+                          ),
                           style: label(context, size: 11, spacing: 1),
                         ),
                       ),
@@ -185,7 +208,10 @@ class _MapPageState extends State<MapPage> {
             listenable: geoStations,
             builder: (context, _) => geoStations.error == null
                 ? const SizedBox.shrink()
-                : BrutBox(onTap: () => geoStations.load(force: true), child: const Text('RETRY')),
+                : BrutBox(
+                    onTap: () => geoStations.load(force: true),
+                    child: const Text('RETRY'),
+                  ),
           ),
         ),
       ],
@@ -224,7 +250,20 @@ class _MapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final s = transform.value.getMaxScaleOnAxis();
+    // Repeat the world sideways to cover whatever part of the scene is visible.
+    final tileW = size.width;
+    final tx = transform.value.getTranslation().x;
+    final first = (-tx / s / tileW).floor();
+    final last = ((size.width - tx) / s / tileW).floor();
+    for (var k = first; k <= last; k++) {
+      canvas.save();
+      canvas.translate(k * tileW, 0);
+      _paintWorld(canvas, s);
+      canvas.restore();
+    }
+  }
 
+  void _paintWorld(Canvas canvas, double s) {
     // Outlines are drawn in map units; line widths stay constant on screen.
     canvas.save();
     canvas.translate(origin.dx, origin.dy);
@@ -237,7 +276,10 @@ class _MapPainter extends CustomPainter {
       ..strokeWidth = px;
     canvas.drawPath(map.land, line);
     // Political borders appear only when zooming in.
-    final borderAlpha = ((s - bordersFrom) / (bordersFull - bordersFrom)).clamp(0.0, 1.0);
+    final borderAlpha = ((s - bordersFrom) / (bordersFull - bordersFrom)).clamp(
+      0.0,
+      1.0,
+    );
     if (borderAlpha > 0) {
       canvas.drawPath(
         map.borders,
@@ -258,7 +300,8 @@ class _MapPainter extends CustomPainter {
     if (_points == null || _pointsFor != list.length) {
       final pts = Float32List(list.length * 2);
       for (var i = 0; i < list.length; i++) {
-        final p = origin + WorldMapData.project(list[i].lon!, list[i].lat!) * unit;
+        final p =
+            origin + WorldMapData.project(list[i].lon!, list[i].lat!) * unit;
         pts[i * 2] = p.dx;
         pts[i * 2 + 1] = p.dy;
       }
@@ -270,7 +313,14 @@ class _MapPainter extends CustomPainter {
     final pts = _points!;
     final dots = Path();
     for (var i = 0; i < pts.length; i += 2) {
-      dots.addRect(Rect.fromLTRB(pts[i] - half, pts[i + 1] - half, pts[i] + half, pts[i + 1] + half));
+      dots.addRect(
+        Rect.fromLTRB(
+          pts[i] - half,
+          pts[i + 1] - half,
+          pts[i] + half,
+          pts[i + 1] + half,
+        ),
+      );
     }
     canvas.drawPath(dots, Paint()..color = ink);
 
@@ -279,7 +329,10 @@ class _MapPainter extends CustomPainter {
     final cur = player.station;
     if (cur != null && cur.hasGeo) {
       final p = origin + WorldMapData.project(cur.lon!, cur.lat!) * unit;
-      canvas.drawRect(Rect.fromCenter(center: p, width: 8 / s, height: 8 / s), Paint()..color = kAccent);
+      canvas.drawRect(
+        Rect.fromCenter(center: p, width: 8 / s, height: 8 / s),
+        Paint()..color = kAccent,
+      );
       canvas.drawRect(
         Rect.fromCenter(center: p, width: 20 / s, height: 20 / s),
         Paint()
@@ -292,7 +345,11 @@ class _MapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MapPainter old) =>
-      old.map != map || old.ink != ink || old.selected != selected || old.unit != unit || old.origin != origin;
+      old.map != map ||
+      old.ink != ink ||
+      old.selected != selected ||
+      old.unit != unit ||
+      old.origin != origin;
 }
 
 /// Bottom sheet after tapping the map: nearby stations + the whole country.
@@ -307,7 +364,9 @@ class _NearbySheet extends StatelessWidget {
     final c = country;
     return SafeArea(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -321,14 +380,30 @@ class _NearbySheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(c == null ? 'NEARBY' : '${flagEmoji(c.iso)}  ${c.iso}',
-                            style: label(context, size: 12, weight: FontWeight.w700, spacing: 2)),
+                        Text(
+                          c == null
+                              ? 'NEARBY'
+                              : '${flagEmoji(c.iso)}  ${c.iso}',
+                          style: label(
+                            context,
+                            size: 12,
+                            weight: FontWeight.w700,
+                            spacing: 2,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text(upper(c?.name ?? 'This area'), style: display(context, size: 28)),
+                        Text(
+                          upper(c?.name ?? 'This area'),
+                          style: display(context, size: 28),
+                        ),
                       ],
                     ),
                   ),
-                  BrutIconButton(Icons.close, size: 40, onTap: () => Navigator.pop(context)),
+                  BrutIconButton(
+                    Icons.close,
+                    size: 40,
+                    onTap: () => Navigator.pop(context),
+                  ),
                 ],
               ),
             ),
@@ -341,7 +416,10 @@ class _NearbySheet extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute<void>(builder: (_) => CountryStationsPage(code: c.iso, name: c.name)),
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            CountryStationsPage(code: c.iso, name: c.name),
+                      ),
                     );
                   },
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -358,9 +436,13 @@ class _NearbySheet extends StatelessWidget {
             if (stations.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(upper('No mapped stations here. Zoom in and tap a dot, '
-                    'or open all stations of the country.'),
-                    style: label(context, size: 12)),
+                child: Text(
+                  upper(
+                    'No mapped stations here. Zoom in and tap a dot, '
+                    'or open all stations of the country.',
+                  ),
+                  style: label(context, size: 12),
+                ),
               ),
           ],
         ),
