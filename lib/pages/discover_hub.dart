@@ -48,12 +48,12 @@ class _DiscoverHubState extends State<DiscoverHub> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+          padding: const EdgeInsets.fromLTRB(16, 16, 72, 10),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('DISCOVER', style: display(context, size: 34)),
-              const SizedBox(width: 16),
+              Text('DISCOVER', style: display(context, size: 30)),
+              const SizedBox(width: 12),
               tab(0, 'TREE'),
               const SizedBox(width: 6),
               tab(1, 'LIBRARY'),

@@ -10,6 +10,7 @@ class BrutBox extends StatelessWidget {
     required this.child,
     this.onTap,
     this.inverted = false,
+    this.accent = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     this.width,
     this.height,
@@ -19,6 +20,9 @@ class BrutBox extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
   final bool inverted;
+
+  /// Filled with the accent colour (play/stop, live controls).
+  final bool accent;
   final EdgeInsets padding;
   final double? width;
   final double? height;
@@ -27,8 +31,8 @@ class BrutBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final fg = inverted ? scheme.surface : scheme.onSurface;
-    final bg = inverted ? scheme.onSurface : scheme.surface;
+    final fg = accent ? Colors.black : inverted ? scheme.surface : scheme.onSurface;
+    final bg = accent ? kAccent : inverted ? scheme.onSurface : scheme.surface;
     Widget box = Container(
       width: width,
       height: height,
@@ -57,12 +61,13 @@ class BrutBox extends StatelessWidget {
 /// Square icon button.
 class BrutIconButton extends StatelessWidget {
   const BrutIconButton(this.icon,
-      {super.key, required this.onTap, this.size = 44, this.inverted = false, this.tooltip});
+      {super.key, required this.onTap, this.size = 44, this.inverted = false, this.accent = false, this.tooltip});
 
   final IconData icon;
   final VoidCallback? onTap;
   final double size;
   final bool inverted;
+  final bool accent;
   final String? tooltip;
 
   @override
@@ -71,6 +76,7 @@ class BrutIconButton extends StatelessWidget {
         height: size,
         padding: EdgeInsets.zero,
         inverted: inverted,
+        accent: accent,
         onTap: onTap,
         tooltip: tooltip,
         child: Icon(icon, size: size * 0.5),
@@ -156,35 +162,13 @@ class PageTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        // Right padding leaves room for the floating settings button.
+        padding: const EdgeInsets.fromLTRB(16, 16, 72, 8),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(child: Text(upper(text), style: display(context, size: 40))),
             ?trailing,
-          ],
-        ),
-      );
-}
-
-/// Light/dark/auto switch shown in page headers.
-class ThemeButton extends StatelessWidget {
-  const ThemeButton({super.key, required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => BrutBox(
-        onTap: onTap,
-        tooltip: 'Theme',
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.contrast, size: 16),
-            const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontSize: 12)),
           ],
         ),
       );

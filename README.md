@@ -29,8 +29,9 @@ Theme follows the system or can be forced light/dark (the ◐ button).
   stations" in the player, to start from it.
 - Search by name, filter by **country** (Türkiye by default, or the whole world) and **genre**.
 - Background playback with notification / lock-screen controls, current song title (ICY metadata).
-- **Library** (under Discover): favorites (drag to reorder), recently played stations and
-  settings (theme, timeshift buffer).
+- **Library** (under Discover): favorites (drag to reorder) and recently played stations.
+- **Settings** float in the top-right corner of every tab: theme (auto / light / dark) and
+  the timeshift buffer length.
 - **Timeshift (rewind live radio)**: the live MP3/AAC stream is recorded into a rolling
   15- or 30-minute in-memory buffer (setting in Library; off is possible). Pause really
   pauses, the player shows how far behind live you are, and you can drag the rewind bar,

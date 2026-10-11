@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// User preferences: light / dark / follow the system.
+/// User preferences: theme and timeshift buffer length.
 class Settings extends ChangeNotifier {
   Settings._(this._prefs);
 
@@ -24,17 +24,6 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// system -> light -> dark -> system
-  void cycleTheme() {
-    final next = switch (themeMode) {
-      ThemeMode.system => 'light',
-      ThemeMode.light => 'dark',
-      ThemeMode.dark => 'system',
-    };
-    _prefs.setString('theme', next);
-    notifyListeners();
-  }
-
   /// Minutes of live audio kept for rewinding (0 = off).
   int get timeshiftMinutes => _prefs.getInt('timeshift') ?? 15;
 
@@ -42,10 +31,4 @@ class Settings extends ChangeNotifier {
     _prefs.setInt('timeshift', m);
     notifyListeners();
   }
-
-  String get themeLabel => switch (themeMode) {
-        ThemeMode.system => 'AUTO',
-        ThemeMode.light => 'LIGHT',
-        ThemeMode.dark => 'DARK',
-      };
 }

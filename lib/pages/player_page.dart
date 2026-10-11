@@ -100,13 +100,13 @@ class PlayerPage extends StatelessWidget {
                         Expanded(
                           child: BrutBox(
                             height: 72,
-                            inverted: true,
+                            accent: true,
                             onTap: player.loading ? null : player.toggle,
                             child: player.loading
-                                ? SizedBox(
+                                ? const SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: scheme.surface),
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                                   )
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -264,7 +264,7 @@ class _TimeshiftBarState extends State<TimeshiftBar> {
             const SizedBox(width: 8),
             Expanded(
               child: BrutBox(
-                inverted: player.isLive && player.playing,
+                accent: player.isLive && player.playing,
                 onTap: player.goLive,
                 child: const Text('● LIVE'),
               ),
@@ -293,11 +293,19 @@ class _TimeshiftPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(x, mid - 1, 2, 2), dot);
     }
     canvas.drawRect(Rect.fromLTRB(bufferedFromX, mid - 1, size.width, mid + 1), Paint()..color = ink);
-    canvas.drawRect(Rect.fromLTRB(bufferedFromX, mid - 3, markerX, mid + 3), Paint()..color = ink);
+    final accent = Paint()..color = kAccent;
+    canvas.drawRect(Rect.fromLTRB(bufferedFromX, mid - 3, markerX, mid + 3), accent);
     // Live end tick and position marker.
     canvas.drawRect(Rect.fromLTWH(size.width - 2, mid - 10, 2, 20), Paint()..color = ink);
     final m = markerX.clamp(7.0, size.width - 7.0);
-    canvas.drawRect(Rect.fromCenter(center: Offset(m, mid), width: 14, height: 22), Paint()..color = ink);
+    final marker = Rect.fromCenter(center: Offset(m, mid), width: 14, height: 22);
+    canvas.drawRect(marker, accent);
+    canvas.drawRect(
+        marker,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..color = ink
+          ..strokeWidth = 2);
   }
 
   @override
