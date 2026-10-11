@@ -60,6 +60,10 @@ directory is unreachable during a build), plus the map stations cached on the de
 the user's favorites. Search, the country list, the map and Discover keep working, and
 the UI says when it is showing the offline catalog.
 
+A scheduled run of the build workflow (every 3 hours) checks whether Radio Browser is up
+and the bundled catalog is empty or older than a week (`tool/catalog_needs_refresh.py`);
+only then it rebuilds and publishes a new release with a fresh catalog.
+
 ## Install
 
 Every push to `main` builds a signed APK in GitHub Actions

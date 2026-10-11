@@ -6,12 +6,37 @@ on:
     paths-ignore:
       - '**.md'
   workflow_dispatch:
+  # Every 3 hours: rebuild only when Radio Browser is up and the bundled offline
+  # catalog is empty or older than a week (see the `check` job).
+  schedule:
+    - cron: '17 */3 * * *'
 
 permissions:
   contents: write
 
 jobs:
+  check:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      needed: ${{ steps.decide.outputs.needed }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore station snapshot
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            assets/stations.json
+            assets/stations.stamp
+          key: station-snapshot-${{ github.run_id }}
+          restore-keys: station-snapshot-
+      - id: decide
+        run: python3 tool/catalog_needs_refresh.py
+
   build:
+    needs: check
+    # Pushes and manual runs always build; scheduled runs only when needed.
+    if: always() && (github.event_name != 'schedule' || needs.check.outputs.needed == 'true')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +78,9 @@ jobs:
       - name: Restore station snapshot
         uses: actions/cache@v4
         with:
-          path: assets/stations.json
+          path: |
+            assets/stations.json
+            assets/stations.stamp
           key: station-snapshot-${{ github.run_id }}
           restore-keys: station-snapshot-
 

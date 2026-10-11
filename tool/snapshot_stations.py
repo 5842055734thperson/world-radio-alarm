@@ -10,6 +10,7 @@ import json
 import os
 import random
 import sys
+import time
 import urllib.request
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'stations.json')
@@ -52,4 +53,7 @@ for s in data:
         slim.append(item)
 with open(OUT, 'w') as f:
     json.dump(slim, f, ensure_ascii=False, separators=(',', ':'))
+# When this snapshot was taken (read by tool/catalog_needs_refresh.py).
+with open(os.path.join(os.path.dirname(OUT), 'stations.stamp'), 'w') as f:
+    f.write(str(int(time.time())))
 print(f'wrote {len(slim)} stations, {os.path.getsize(OUT)} bytes')

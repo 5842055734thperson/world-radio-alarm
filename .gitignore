@@ -55,3 +55,4 @@ assets/fonts/Chillax-*
 
 # Offline station catalog, generated at build time
 assets/stations.json
+assets/stations.stamp
